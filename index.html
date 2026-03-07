@@ -2369,105 +2369,98 @@
         }
         
         function runAnalysis(stockfish, engineLabel, resolve) {
-                    document.getElementById('engine-status').textContent = `✅ ${engineLabel}`;
-                    
-                    // نبني قائمة المواضع: [startPos, afterMove0, afterMove1, ...]
-                    const positions = [];
-                    const ch = new Chess();
-                    positions.push(ch.fen()); // موضع البداية
-                    for (let m of moveHistory) {
-                        ch.move(m);
-                        positions.push(ch.fen());
+            document.getElementById('engine-status').textContent = `⚙️ ${engineLabel} يحلل...`;
+
+            // بناء قائمة FEN لكل موضع بعد كل حركة
+            // evaluations[i] = تقييم الموضع بعد الحركة i (دائماً من منظور البياض)
+            const fenList = [];
+            const ch = new Chess();
+            for (let m of moveHistory) {
+                ch.move(m);
+                fenList.push(ch.fen()); // fenList[i] = الموضع بعد الحركة i
+            }
+
+            let idx = 0;          // الحركة التي نحللها الآن
+            let analyzing = false; // منع التداخل
+
+            // handler واحد ثابت طول عمر التحليل
+            const onMsg = (event) => {
+                const line = event.data;
+                if (typeof line !== 'string') return;
+
+                if (line.includes('score cp')) {
+                    const match = line.match(/score cp (-?\d+)/);
+                    if (match) {
+                        // fenList[idx] هو الموضع بعد الحركة idx
+                        // دور من؟ نقرأ من FEN (الحرف بعد المسافة الأولى)
+                        const sideToMove = fenList[idx].split(' ')[1];
+                        const cp = parseInt(match[1]) / 100;
+                        // Stockfish يعطي التقييم من منظور اللاعب صاحب الدور
+                        // نحوّل دائماً لمنظور البياض
+                        evaluations[idx] = (sideToMove === 'w') ? cp : -cp;
                     }
-                    // positions[i] = الموضع بعد الحركة i (أو البداية إذا i=0)
-                    // لتقييم الحركة i: نقيس تغيير التقييم بين positions[i] و positions[i+1] - لكن هذا معقد
-                    // الطريقة الأسهل: نقيم positions[i] لكل i من 0 إلى moveHistory.length
-                    // evaluations[i] = تقييم الموضع بعد الحركة i
-                    
-                    const evalPositions = positions; // كل المواضع
-                    let posIndex = 0; // نبدأ من موضع ما بعد الحركة 0
-                    
-                    const analyzeNext = () => {
-                        // نقيم فقط المواضع بعد كل حركة (index 1 إلى moveHistory.length)
-                        const actualIndex = posIndex + 1; // positions[1] = بعد حركة 0
-                        if (actualIndex >= evalPositions.length) {
-                            stockfish.terminate();
-                            document.getElementById('engine-status').textContent = `اكتمل - ${engineLabel}`;
-                            resolve(true);
-                            return;
-                        }
-                        
-                        const fen = evalPositions[actualIndex];
-                        let evaluation = 0;
-                        let gotEval = false;
-                        
-                        const messageHandler = (event) => {
-                            const line = event.data;
-                            if (typeof line !== 'string') return;
-                            
-                            if (line.includes('score cp')) {
-                                const match = line.match(/score cp (-?\d+)/);
-                                if (match) {
-                                    evaluation = parseInt(match[1]) / 100;
-                                    gotEval = true;
-                                }
-                            } else if (line.includes('score mate')) {
-                                const match = line.match(/score mate (-?\d+)/);
-                                if (match) {
-                                    const mateIn = parseInt(match[1]);
-                                    evaluation = mateIn > 0 ? 99 : -99;
-                                    gotEval = true;
-                                }
-                            } else if (line.startsWith('bestmove')) {
-                                evaluations[posIndex] = gotEval ? evaluation : 0;
-                                posIndex++;
-                                
-                                const progress = (posIndex / moveHistory.length * 100).toFixed(0);
-                                document.getElementById('analysis-progress-fill').style.width = progress + '%';
-                                document.getElementById('engine-status').textContent = 
-                                    `${engineLabel} (${progress}%)`;
-                                
-                                setTimeout(analyzeNext, 5);
-                            }
-                        };
-                        
-                        stockfish.removeEventListener('message', messageHandler);
-                        stockfish.addEventListener('message', messageHandler);
-                        
-                        stockfish.postMessage('position fen ' + fen);
-                        stockfish.postMessage('go depth 15');
-                        
-                        // timeout لكل موضع
-                        setTimeout(() => {
-                            if (!gotEval && posIndex === actualIndex - 1) {
-                                evaluations[posIndex] = 0;
-                                posIndex++;
-                                analyzeNext();
-                            }
-                        }, 5000);
-                    };
-                    
-                    // تهيئة المحرك
-                    // timeout شامل
-                    setTimeout(() => {
-                        if (posIndex < moveHistory.length) {
-                            stockfish.terminate();
-                            document.getElementById('engine-status').textContent = `⚠️ ${engineLabel} - انتهى الوقت`;
-                            resolve(posIndex > 0); // نجاح جزئي
-                        }
-                    }, 120000);
-                    
-                    // المحرك جاهز (testWorker أرسل uci بالفعل، نرسل isready)
-                    stockfish.postMessage('isready');
-                    const readyHandler = (event) => {
-                        if (typeof event.data === 'string' && event.data.includes('readyok')) {
-                            stockfish.removeEventListener('message', readyHandler);
-                            analyzeNext();
-                        }
-                    };
-                    stockfish.addEventListener('message', readyHandler);
-                    // fallback إذا readyok لم يأتِ (بعض الإصدارات لا ترسله)
-                    setTimeout(() => analyzeNext(), 500);
+                } else if (line.includes('score mate')) {
+                    const match = line.match(/score mate (-?\d+)/);
+                    if (match) {
+                        const sideToMove = fenList[idx].split(' ')[1];
+                        const mate = parseInt(match[1]);
+                        const whiteWins = (sideToMove === 'w') ? mate > 0 : mate < 0;
+                        evaluations[idx] = whiteWins ? 99 : -99;
+                    }
+                } else if (line.startsWith('bestmove')) {
+                    // انتهى تحليل الحركة idx
+                    if (evaluations[idx] === undefined) evaluations[idx] = 0;
+                    idx++;
+                    analyzing = false;
+
+                    const pct = Math.round(idx / fenList.length * 100);
+                    document.getElementById('analysis-progress-fill').style.width = pct + '%';
+                    document.getElementById('engine-status').textContent = `${engineLabel} (${pct}%)`;
+
+                    analyzeOne();
+                }
+            };
+
+            stockfish.addEventListener('message', onMsg);
+
+            function analyzeOne() {
+                if (analyzing) return;
+                if (idx >= fenList.length) {
+                    // اكتمل التحليل
+                    stockfish.removeEventListener('message', onMsg);
+                    stockfish.terminate();
+                    document.getElementById('engine-status').textContent = `اكتمل - ${engineLabel}`;
+                    resolve(true);
+                    return;
+                }
+                analyzing = true;
+                stockfish.postMessage('position fen ' + fenList[idx]);
+                stockfish.postMessage('go depth 15');
+
+                // timeout لكل موضع (5 ثوانٍ)
+                setTimeout(() => {
+                    if (analyzing && evaluations[idx] === undefined) {
+                        evaluations[idx] = 0;
+                        idx++;
+                        analyzing = false;
+                        analyzeOne();
+                    }
+                }, 5000);
+            }
+
+            // timeout شامل (3 دقائق)
+            setTimeout(() => {
+                if (idx < fenList.length) {
+                    stockfish.removeEventListener('message', onMsg);
+                    stockfish.terminate();
+                    document.getElementById('engine-status').textContent = `⚠️ ${engineLabel} - انتهى الوقت`;
+                    resolve(idx > 0);
+                }
+            }, 180000);
+
+            // ابدأ التحليل مباشرة (testWorker أرسل uci وانتظر readyok مسبقاً)
+            stockfish.postMessage('ucinewgame');
+            analyzeOne();
         }
         
         // ==================== Lichess Cloud ====================
@@ -2644,10 +2637,18 @@
         }
         
         function getMoveType(currentEval, previousEval, isWhite) {
-            // diff موجب = تحسّن للاعب، سالب = تراجع
-            const diff = isWhite ? (currentEval - previousEval) : (previousEval - currentEval);
+            // evaluations دائماً من منظور البياض
+            // موجب = البياض أفضل، سالب = الأسود أفضل
+            // diff = كم تحسّن الوضع للاعب الذي حرّك
+            // البياض: يريد التقييم يرتفع (موجب أكبر)
+            // الأسود: يريد التقييم ينخفض (سالب أكبر)
+            const diff = isWhite 
+                ? (currentEval - previousEval)   // البياض: ارتفاع = تحسّن
+                : (previousEval - currentEval);  // الأسود: انخفاض = تحسّن
             
-            if (diff >= -0.1) return { icon: 'icon-best',       symbol: '✓',  class: 'indicator-best' };
+            // diff موجب = اللاعب تحسّن وضعه
+            // diff سالب = اللاعب أضرّ بنفسه
+            if (diff >= -0.1)  return { icon: 'icon-best',       symbol: '✓',  class: 'indicator-best' };
             if (diff >= -0.25) return { icon: 'icon-excellent',  symbol: '✓',  class: 'indicator-excellent' };
             if (diff >= -0.5)  return { icon: 'icon-good',       symbol: '✓',  class: 'indicator-good' };
             if (diff >= -0.9)  return { icon: 'icon-inaccuracy', symbol: '?!', class: 'indicator-inaccuracy' };
@@ -2734,43 +2735,46 @@
         // ==================== الإحصائيات ====================
         function calculateStatistics() {
             const moveStats = {
-                white: { book: 0, brilliant: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 },
-                black: { book: 0, brilliant: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 }
+                white: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 },
+                black: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 }
             };
             
             let whiteTotal = 0, blackTotal = 0, whiteGood = 0, blackGood = 0;
             
             for (let i = 0; i < moveHistory.length; i++) {
                 const isWhite = i % 2 === 0;
-                const currentEval = evaluations[i] || 0;
-                const previousEval = i > 0 ? evaluations[i - 1] : 0;
-                const diff = Math.abs(isWhite ? (currentEval - previousEval) : (previousEval - currentEval));
-                
                 const stats = isWhite ? moveStats.white : moveStats.black;
-                
                 if (isWhite) whiteTotal++; else blackTotal++;
-                
-                // If moveClassifications marks this move as book (opening), count as book and skip other buckets
+
+                // حركات الافتتاحية
                 if (moveClassifications && moveClassifications[i] && moveClassifications[i].class === 'indicator-book') {
                     stats.book++;
-                    // book moves are not counted as "good" for accuracy
                     continue;
                 }
-                
-                if (diff < 0.1) {
+
+                // استخدام moveClassifications مباشرة (محسوبة مسبقاً بشكل صحيح)
+                const cls = moveClassifications && moveClassifications[i] ? moveClassifications[i].class : null;
+
+                if (cls === 'indicator-brilliant') {
+                    stats.brilliant++;
+                    if (isWhite) whiteGood++; else blackGood++;
+                } else if (cls === 'indicator-great') {
+                    stats.great++;
+                    if (isWhite) whiteGood++; else blackGood++;
+                } else if (cls === 'indicator-best') {
                     stats.best++;
                     if (isWhite) whiteGood++; else blackGood++;
-                } else if (diff < 0.3) {
+                } else if (cls === 'indicator-excellent') {
                     stats.excellent++;
                     if (isWhite) whiteGood++; else blackGood++;
-                } else if (diff < 0.5) {
+                } else if (cls === 'indicator-good') {
                     stats.good++;
                     if (isWhite) whiteGood++; else blackGood++;
-                } else if (diff < 1.0) {
+                } else if (cls === 'indicator-inaccuracy') {
                     stats.inaccuracy++;
-                } else if (diff < 2.0) {
+                } else if (cls === 'indicator-mistake') {
                     stats.mistake++;
-                } else {
+                } else if (cls === 'indicator-blunder') {
                     stats.blunder++;
                 }
             }
@@ -2790,14 +2794,15 @@
             const maxValue = Math.max(...Object.values(stats));
             
             const statItems = [
-                { key: 'book', label: 'افتتاحية', icon: 'icon-book', symbol: '📖' },
-                { key: 'brilliant', label: 'رائعة', icon: 'icon-brilliant', symbol: '!!' },
-                { key: 'best', label: 'أفضل', icon: 'icon-best', symbol: '✓' },
-                { key: 'excellent', label: 'ممتازة', icon: 'icon-excellent', symbol: '✓' },
-                { key: 'good', label: 'جيدة', icon: 'icon-good', symbol: '✓' },
-                { key: 'inaccuracy', label: 'غير دقيقة', icon: 'icon-inaccuracy', symbol: '?!' },
-                { key: 'mistake', label: 'خطأ', icon: 'icon-mistake', symbol: '?' },
-                { key: 'blunder', label: 'خطأ فادح', icon: 'icon-blunder', symbol: '??' }
+                { key: 'book',       label: 'افتتاحية',   icon: 'icon-book',       symbol: '📖' },
+                { key: 'brilliant',  label: 'مدهشة',      icon: 'icon-brilliant',  symbol: '!!' },
+                { key: 'great',      label: 'رائعة',      icon: 'icon-great',      symbol: '!'  },
+                { key: 'best',       label: 'أفضل',       icon: 'icon-best',       symbol: '✓'  },
+                { key: 'excellent',  label: 'ممتازة',     icon: 'icon-excellent',  symbol: '✓'  },
+                { key: 'good',       label: 'جيدة',       icon: 'icon-good',       symbol: '✓'  },
+                { key: 'inaccuracy', label: 'غير دقيقة',  icon: 'icon-inaccuracy', symbol: '?!' },
+                { key: 'mistake',    label: 'خطأ',        icon: 'icon-mistake',    symbol: '?'  },
+                { key: 'blunder',    label: 'خطأ فادح',   icon: 'icon-blunder',    symbol: '??' },
             ];
             
             container.innerHTML = '';
