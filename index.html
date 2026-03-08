@@ -2295,7 +2295,7 @@
 
             // ===== كشف إضاعة الفرصة (Miss) =====
             // إذا ارتكب الخصم blunder/mistake، والنقلة التالية لم تستغل الوضع
-            if (analysisDepth !== 'instant') {
+            {
                 for (let i = 1; i < moveHistory.length; i++) {
                     const prevCls = moveClassifications[i - 1]?.class;
                     if (prevCls !== 'indicator-blunder' && prevCls !== 'indicator-mistake') continue;
@@ -2373,11 +2373,11 @@
         // ==================== Stockfish ====================
         async function tryStockfishAnalysis() {
             const engines = [
-                // Stockfish 18 lite-single من CDN - single-threaded، لا يحتاج headers خاصة
-                { url: 'https://cdn.jsdelivr.net/gh/nmrugg/stockfish.js@v18.0.0/stockfish-18-lite-single.js', label: 'Stockfish 18 ⚡' },
-                // lite عادي كاحتياطي ثانٍ
-                { url: 'https://cdn.jsdelivr.net/gh/nmrugg/stockfish.js@v18.0.0/stockfish-18-lite.js', label: 'Stockfish 18' },
-                // المحلي القديم دائماً آخر احتياطي
+                // Stockfish 18 lite-single محلي عبر worker wrapper
+                { url: 'stockfish-worker.js', label: 'Stockfish 18 lite ⚡' },
+                // Stockfish 18 lite-single من CDN
+                { url: 'https://cdn.jsdelivr.net/gh/nmrugg/stockfish.js@v18.0.0/stockfish-18-lite-single.js', label: 'Stockfish 18 CDN' },
+                // stockfish.js محلي (SF10)
                 { url: 'stockfish.js', label: 'Stockfish 10' },
             ];
 
@@ -2709,6 +2709,7 @@
                 
                 const classified = moveClassifications && moveClassifications[i] ? moveClassifications[i] : null;
                 const moveType = classified || getMoveType(evaluation, prevEval, isWhiteMove);
+                // miss لا يأتي من getMoveType، يأتي فقط من moveClassifications
                 
                 const extraClasses = (classified && classified.class === 'indicator-book') ? 'book-move' : (classified && classified.class === 'indicator-brilliant') ? 'brilliant-move' : '';
                 
@@ -3126,13 +3127,14 @@
                 ? evaluations[currentMoveIndex] : 0;
             updateEvalBar(_ev);
 
-            // عرض مؤشر الحركة
+            // عرض مؤشر الحركة - استخدم moveClassifications أولاً (يحتوي miss وغيره)
             if (currentMoveIndex >= 0) {
                 const move = moveHistory[currentMoveIndex];
                 const prevEval = currentMoveIndex > 0 ? evaluations[currentMoveIndex - 1] : 0;
                 const currentEval = evaluations[currentMoveIndex] || 0;
                 const isWhite = currentMoveIndex % 2 === 0;
-                const moveType = getMoveType(currentEval, prevEval, isWhite);
+                const moveType = (moveClassifications && moveClassifications[currentMoveIndex])
+                    || getMoveType(currentEval, prevEval, isWhite);
                 showMoveIndicator(move, moveType);
             } else {
                 if (currentMoveIndicator) {
@@ -3189,8 +3191,29 @@
             _updateMoveExplanationBar(currentMoveIndex);
         });
         
+        let _boardFlipped = false;
         document.getElementById('btn-flip').addEventListener('click', () => {
             board.flip();
+            _boardFlipped = !_boardFlipped;
+            // اقلب eval bar: أبيض فوق أو أسود فوق
+            const container = document.getElementById('eval-bar-container');
+            if (container) {
+                const black = document.getElementById('eval-bar-black');
+                const white = document.getElementById('eval-bar-white');
+                if (_boardFlipped) {
+                    // الأسود في الأسفل → الأبيض فوق
+                    container.style.flexDirection = 'column';
+                    if (white.nextSibling !== black) {
+                        container.insertBefore(white, black);
+                    }
+                } else {
+                    // الأبيض في الأسفل → الأسود فوق (الوضع الافتراضي)
+                    container.style.flexDirection = 'column';
+                    if (black.nextSibling !== white) {
+                        container.insertBefore(black, white);
+                    }
+                }
+            }
         });
 
        document.getElementById('reanalyze-btn').addEventListener('click', async () => {
