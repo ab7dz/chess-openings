@@ -119,6 +119,7 @@
         .icon-excellent { background: #96af8b; color: white; }
         .icon-good { background: #96bc4b; color: white; }
         .icon-inaccuracy { background: #f0c14b; color: #1f1f1f; }
+        .icon-miss { background: #d2684f; color: #1f1f1f; }
         .icon-mistake { background: #e58f2a; color: white; }
         .icon-blunder { background: #b33430; color: white; }
         .icon-book { background: rgba(240,193,75,0.08); color: var(--accent-gold); border: 1px solid rgba(240,193,75,0.15); }
@@ -331,6 +332,7 @@
         .icon-excellent { background: #96af8b; color: white; }
         .icon-good { background: #96bc4b; color: white; }
         .icon-inaccuracy { background: #f0c14b; color: #1f1f1f; }
+        .icon-miss { background: #d2684f; color: #1f1f1f; }
         .icon-mistake { background: #e58f2a; color: white; }
         .icon-blunder { background: #b33430; color: white; }
         
@@ -727,58 +729,8 @@
             </div>
             
             <div class="p-6">
-                <div id="game-info-header" class="game-info-card">
-                    <div class="player-section">
-                        <img id="white-player-avatar" src="" class="w-12 h-12 rounded-full">
-                        <div>
-                            <div id="white-player-name" class="font-semibold"></div>
-                            <div id="white-player-rating" class="text-sm" style="color: var(--text-secondary);"></div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold mb-1">vs</div>
-                        <div id="game-result" class="text-sm" style="color: var(--text-secondary);"></div>
-                    </div>
-                    <div class="player-section">
-                        <img id="black-player-avatar" src="" class="w-12 h-12 rounded-full">
-                        <div>
-                            <div id="black-player-name" class="font-semibold"></div>
-                            <div id="black-player-rating" class="text-sm" style="color: var(--text-secondary);"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="opening-info" class="opening-badge hidden">
-                    <div class="opening-name"></div>
-                    <div class="opening-moves"></div>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <div class="lg:col-span-1">
-                        <div class="board-wrapper mb-4" id="board-container">
-                            <div id="analysis-board" style="width: 100%;"></div>
-                        </div>
-                        
-                        <div class="grid grid-cols-5 gap-2 mb-4">
-                            <button id="btn-first" class="btn btn-secondary p-2">
-                                <i data-lucide="chevrons-right" class="w-5 h-5"></i>
-                            </button>
-                            <button id="btn-prev" class="btn btn-secondary p-2">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                            </button>
-                            <button id="btn-flip" class="btn btn-secondary p-2">
-                                <i data-lucide="repeat" class="w-5 h-5"></i>
-                            </button>
-                            <button id="btn-next" class="btn btn-secondary p-2">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                            </button>
-                            <button id="btn-last" class="btn btn-secondary p-2">
-                                <i data-lucide="chevrons-left" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="rounded-lg p-3 text-center" style="background: var(--bg-secondary);">
+              
+                <div class="rounded-lg p-3 text-center" style="background: var(--bg-secondary);">
                             <p id="engine-status" class="text-sm" style="color: var(--text-secondary);">
                                 جاهز للتحليل
                             </p>
@@ -786,10 +738,26 @@
                                 <div id="analysis-progress-fill" class="progress-bar-fill" style="width: 0%"></div>
                             </div>
 
-                                <span id="cloud-toggle-label" style="font-size:0.72rem; color: var(--text-secondary);">معطّل</span>
+                            <!-- تفسير النقلة -->
+                            <div id="move-explanation" style="
+                                display:none;
+                                margin-top:8px;
+                                padding:10px 12px;
+                                border-radius:8px;
+                                background:var(--bg-tertiary);
+                                font-size:0.8rem;
+                                line-height:1.5;
+                                text-align:right;
+                                direction:rtl;
+                                border-right: 3px solid var(--accent-cyan);
+                            ">
+                                <div id="move-explanation-icon" style="font-size:1.1rem; margin-left:6px; float:right;"></div>
+                                <div id="move-explanation-text" style="color:var(--text-primary);"></div>
+                                <div id="move-explanation-eval" style="color:var(--text-secondary); font-size:0.75rem; margin-top:4px;"></div>
                             </div>
+
                             <!-- خيار سرعة التحليل -->
-                            <div class="mt-2 flex items-center justify-center gap-2">
+                           <div class="mt-2 flex items-center justify-center gap-2">
                                 <span style="font-size: 0.78rem; color: var(--text-secondary);">دقة التحليل</span>
                                 <div id="depth-selector" style="display:flex; gap:4px; flex-wrap:wrap;">
                                     <button onclick="setAnalysisDepth('instant')" id="depth-instant" style="
@@ -810,16 +778,45 @@
                                     ">🔬 عميق</button>
                                 </div>
                             </div>
+       
+                              
+                              </div>
+                              
+                <div id="game-info-header" class="game-info-card">
+                    <div class="player-section">
+                        <img id="white-player-avatar" src="" class="w-12 h-12 rounded-full">
+                        <div>
+                            <div id="white-player-name" class="font-semibold"></div>
+                            <div id="white-player-rating" class="text-sm" style="color: var(--text-secondary);"></div>
                         </div>
                     </div>
-                    
-                    <div class="lg:col-span-2">
-                        
+                    <div class="text-center">
+                        <div class="text-2xl font-bold mb-1">vs</div>
+                        <div id="game-result" class="text-sm" style="color: var(--text-secondary);"></div>
+                    </div>
+                    <div class="player-section">
+                        <img id="black-player-avatar" src="" class="w-12 h-12 rounded-full">
+                        <div>
+                            <div id="black-player-name" class="font-semibold"></div>
+                            <div id="black-player-rating" class="text-sm" style="color: var(--text-secondary);"></div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div id="opening-info" class="opening-badge hidden">
+                    <div class="opening-name"></div>
+                    <div class="opening-moves"></div>
+                </div>
+    
+                <div class="lg:col-span-2">
+                        <h3 class="font-bold mb-4 text-lg">منحنى المقابلة</h3>
+                            
                         <div class="eval-graph-container mb-4">
                             <canvas id="eval-chart" style="width:100%;height:100%;display:block;"></canvas>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4 mb-4">
+                            <h3 class="font-bold mb-4 text-lg">إحصائيات النقلات</h3>
                             <div class="accuracy-card white">
                                 <div class="player-info">
                                     <img id="white-accuracy-avatar" src="" class="player-avatar">
@@ -830,6 +827,12 @@
                                 </div>
                                 <div class="accuracy-label">الدقة</div>
                                 <div id="white-accuracy" class="accuracy-value">0.0</div>
+                                
+                                <div>
+                                    <h4 class="font-semibold mb-3" style="color: var(--text-secondary);">الأبيض</h4>
+                                    <div id="white-stats" class="stats-grid"></div>
+                                </div>
+                                
                             </div>
                             <div class="accuracy-card black">
                                 <div class="player-info">
@@ -841,22 +844,17 @@
                                 </div>
                                 <div class="accuracy-label">الدقة</div>
                                 <div id="black-accuracy" class="accuracy-value">0.0</div>
-                            </div>
-                        </div>
-                        
-                        <div class="rounded-lg p-4 mb-4" style="background: var(--bg-secondary);">
-                            <h3 class="font-bold mb-4 text-lg">إحصائيات النقلات</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 class="font-semibold mb-3" style="color: var(--text-secondary);">الأبيض</h4>
-                                    <div id="white-stats" class="stats-grid"></div>
-                                </div>
+                                
                                 <div>
                                     <h4 class="font-semibold mb-3" style="color: var(--text-secondary);">الأسود</h4>
                                     <div id="black-stats" class="stats-grid"></div>
                                 </div>
+                                
+                                
                             </div>
                         </div>
+                        
+                
                         
                         <div class="rounded-lg p-4" style="background: var(--bg-secondary);">
                             <h3 class="font-bold mb-3">النقلات</h3>
@@ -887,8 +885,36 @@
                         </div>
                         
                     </div>
+                 
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                </div>
+                    <div class="lg:col-span-1">
+                        <div class="board-wrapper mb-4" id="board-container">
+                            <div id="analysis-board" style="width: 100%;"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-5 gap-2 mb-4">
+                            <button id="btn-first" class="btn btn-secondary p-2">
+                                <i data-lucide="chevrons-right" class="w-5 h-5"></i>
+                            </button>
+                            <button id="btn-prev" class="btn btn-secondary p-2">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                            <button id="btn-flip" class="btn btn-secondary p-2">
+                                <i data-lucide="repeat" class="w-5 h-5"></i>
+                            </button>
+                            <button id="btn-next" class="btn btn-secondary p-2">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <button id="btn-last" class="btn btn-secondary p-2">
+                                <i data-lucide="chevrons-left" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        
+                                        </div>
+                    </div>
+                                   
+             </div>
             </div>
         </div>
     </div>
@@ -1097,30 +1123,138 @@
         let moveClassifications = [];
         
         const openingsDatabase = {
+            // === e4 openings ===
+            "e4": { name: "King's Pawn Game", eco: "B00" },
+            "e4 e5": { name: "King's Pawn Game", eco: "C20" },
+            "e4 e5 Nf3": { name: "King's Knight Opening", eco: "C40" },
+            "e4 e5 Nf3 Nc6": { name: "Three Knights / Spanish Setup", eco: "C40" },
+            "e4 e5 Nf3 Nc6 Bc4": { name: "Italian Game", eco: "C50" },
+            "e4 e5 Nf3 Nc6 Bc4 Bc5": { name: "Giuoco Piano", eco: "C50" },
+            "e4 e5 Nf3 Nc6 Bc4 Nf6": { name: "Two Knights Defense", eco: "C55" },
+            "e4 e5 Nf3 Nc6 Bb5": { name: "Ruy Lopez", eco: "C60" },
+            "e4 e5 Nf3 Nc6 Bb5 a6": { name: "Ruy Lopez, Morphy Defense", eco: "C60" },
+            "e4 e5 Nf3 Nc6 Bb5 Nf6": { name: "Ruy Lopez, Berlin Defense", eco: "C65" },
+            "e4 e5 Nf3 Nf6": { name: "Petrov's Defense", eco: "C42" },
+            "e4 e5 Nf3 f5": { name: "Latvian Gambit", eco: "C40" },
+            "e4 e5 f4": { name: "King's Gambit", eco: "C30" },
+            "e4 e5 f4 exf4": { name: "King's Gambit Accepted", eco: "C33" },
+            "e4 e5 f4 Bc5": { name: "King's Gambit Declined", eco: "C30" },
+            "e4 e5 Nc3": { name: "Vienna Game", eco: "C25" },
+            "e4 e5 Bc4": { name: "Bishop's Opening", eco: "C23" },
+            "e4 e5 d4": { name: "Center Game", eco: "C21" },
+            "e4 e5 Nf3 Nc6 d4": { name: "Scotch Game", eco: "C44" },
+            "e4 e5 Nf3 Nc6 d4 exd4": { name: "Scotch Game", eco: "C44" },
+            "e4 e5 Nf3 Nc6 d4 exd4 Nxd4": { name: "Scotch Game", eco: "C45" },
+            // Sicilian
             "e4 c5": { name: "Sicilian Defense", eco: "B20" },
-            "e4 c5 Nf3": { name: "Sicilian Defense", eco: "B20" },
-            "e4 c5 Nf3 d6": { name: "Sicilian Defense, Old Sicilian", eco: "B30" },
-            "e4 c5 Nf3 Nc6": { name: "Sicilian Defense, Closed", eco: "B23" },
+            "e4 c5 Nf3": { name: "Sicilian Defense, Open", eco: "B20" },
+            "e4 c5 Nf3 d6": { name: "Sicilian Defense, Najdorf Setup", eco: "B70" },
+            "e4 c5 Nf3 d6 d4": { name: "Sicilian Defense, Open", eco: "B70" },
+            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6": { name: "Sicilian Najdorf", eco: "B90" },
+            "e4 c5 Nf3 Nc6": { name: "Sicilian Defense, Old Sicilian", eco: "B30" },
+            "e4 c5 Nf3 Nc6 d4": { name: "Sicilian Defense, Open", eco: "B30" },
             "e4 c5 Nf3 e6": { name: "Sicilian Defense, French Variation", eco: "B40" },
+            "e4 c5 Nc3": { name: "Sicilian Defense, Closed", eco: "B23" },
+            "e4 c5 c3": { name: "Sicilian Defense, Alapin Variation", eco: "B22" },
+            "e4 c5 d4": { name: "Sicilian Defense, Smith-Morra Gambit", eco: "B21" },
+            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6": { name: "Sicilian Dragon", eco: "B70" },
+            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6": { name: "Sicilian Scheveningen", eco: "B80" },
+            // French
             "e4 e6": { name: "French Defense", eco: "C00" },
             "e4 e6 d4": { name: "French Defense", eco: "C00" },
             "e4 e6 d4 d5": { name: "French Defense", eco: "C00" },
+            "e4 e6 d4 d5 Nc3": { name: "French Defense, Classical", eco: "C10" },
+            "e4 e6 d4 d5 Nd2": { name: "French Defense, Tarrasch", eco: "C03" },
+            "e4 e6 d4 d5 e5": { name: "French Defense, Advance Variation", eco: "C02" },
+            "e4 e6 d4 d5 exd5": { name: "French Defense, Exchange Variation", eco: "C01" },
+            "e4 e6 d4 d5 Nc3 Nf6": { name: "French Defense, Classical", eco: "C14" },
+            "e4 e6 d4 d5 Nc3 Bb4": { name: "French Defense, Winawer Variation", eco: "C15" },
+            // Caro-Kann
             "e4 c6": { name: "Caro-Kann Defense", eco: "B10" },
-            "e4 c6 d4": { name: "Caro-Kann Defense", eco: "B10" },
-            "e4 e5 Nf3 Nc6 Bc4": { name: "Italian Game", eco: "C50" },
-            "e4 e5 Nf3 Nc6 Bb5": { name: "Ruy Lopez", eco: "C60" },
+            "e4 c6 d4": { name: "Caro-Kann Defense", eco: "B12" },
+            "e4 c6 d4 d5": { name: "Caro-Kann Defense", eco: "B13" },
+            "e4 c6 d4 d5 Nc3": { name: "Caro-Kann Defense, Classical", eco: "B18" },
+            "e4 c6 d4 d5 exd5": { name: "Caro-Kann Defense, Exchange", eco: "B13" },
+            "e4 c6 d4 d5 e5": { name: "Caro-Kann Defense, Advance", eco: "B12" },
+            // Pirc / Modern
+            "e4 d6": { name: "Pirc Defense", eco: "B07" },
+            "e4 d6 d4 Nf6": { name: "Pirc Defense", eco: "B07" },
+            "e4 d6 d4 Nf6 Nc3 g6": { name: "Pirc Defense, Classical", eco: "B08" },
+            "e4 g6": { name: "Modern Defense", eco: "B06" },
+            "e4 g6 d4 Bg7": { name: "Modern Defense", eco: "B06" },
+            // Scandinavian
+            "e4 d5": { name: "Scandinavian Defense", eco: "B01" },
+            "e4 d5 exd5": { name: "Scandinavian Defense", eco: "B01" },
+            "e4 d5 exd5 Qxd5": { name: "Scandinavian Defense, Mieses-Kotrč", eco: "B01" },
+            "e4 d5 exd5 Nf6": { name: "Scandinavian Defense, Icelandic Gambit", eco: "B01" },
+            // Alekhine
+            "e4 Nf6": { name: "Alekhine's Defense", eco: "B02" },
+            "e4 Nf6 e5 Nd5": { name: "Alekhine's Defense, Modern Variation", eco: "B04" },
+            // === d4 openings ===
+            "d4": { name: "Queen's Pawn Game", eco: "D00" },
+            "d4 d5": { name: "Queen's Pawn Game", eco: "D00" },
             "d4 d5 c4": { name: "Queen's Gambit", eco: "D06" },
             "d4 d5 c4 e6": { name: "Queen's Gambit Declined", eco: "D30" },
+            "d4 d5 c4 e6 Nc3": { name: "Queen's Gambit Declined", eco: "D31" },
+            "d4 d5 c4 e6 Nc3 Nf6": { name: "Queen's Gambit Declined", eco: "D37" },
+            "d4 d5 c4 e6 Nf3 Nf6 Nc3 Be7": { name: "Queen's Gambit Declined, Orthodox", eco: "D60" },
             "d4 d5 c4 dxc4": { name: "Queen's Gambit Accepted", eco: "D20" },
-            "d4 Nf6 c4 g6": { name: "King's Indian Defense", eco: "E60" },
+            "d4 d5 c4 dxc4 Nf3": { name: "Queen's Gambit Accepted", eco: "D20" },
+            "d4 d5 c4 c6": { name: "Slav Defense", eco: "D10" },
+            "d4 d5 c4 c6 Nf3": { name: "Slav Defense", eco: "D11" },
+            "d4 d5 c4 c6 Nc3": { name: "Slav Defense", eco: "D12" },
             "d4 d5 Bf4": { name: "London System", eco: "D02" },
-            "d4 Nf6 Bf4": { name: "London System", eco: "D02" },
+            "d4 d5 Nf3": { name: "Queen's Pawn, London-like", eco: "D02" },
+            "d4 Nf6 Bf4": { name: "London System", eco: "A46" },
+            "d4 Nf6 Nf3": { name: "Indian Game", eco: "A46" },
+            "d4 Nf6 c4": { name: "Indian Game", eco: "E00" },
+            "d4 Nf6 c4 g6": { name: "King's Indian Defense", eco: "E60" },
+            "d4 Nf6 c4 g6 Nc3": { name: "King's Indian Defense", eco: "E61" },
+            "d4 Nf6 c4 g6 Nc3 Bg7": { name: "King's Indian Defense", eco: "E70" },
+            "d4 Nf6 c4 g6 Nc3 Bg7 e4": { name: "King's Indian Defense, Main Line", eco: "E90" },
+            "d4 Nf6 c4 e6": { name: "Nimzo/Queen's Indian Setup", eco: "E00" },
+            "d4 Nf6 c4 e6 Nc3 Bb4": { name: "Nimzo-Indian Defense", eco: "E20" },
+            "d4 Nf6 c4 e6 Nf3 b6": { name: "Queen's Indian Defense", eco: "E12" },
+            "d4 Nf6 c4 c5": { name: "Benoni Defense", eco: "A56" },
+            "d4 Nf6 c4 c5 d5": { name: "Modern Benoni", eco: "A60" },
+            "d4 Nf6 c4 d6": { name: "Old Indian Defense", eco: "A53" },
+            "d4 e6": { name: "Queen's Pawn, French-like", eco: "A40" },
+            "d4 f5": { name: "Dutch Defense", eco: "A80" },
+            "d4 f5 c4": { name: "Dutch Defense", eco: "A85" },
+            "d4 f5 Nf3": { name: "Dutch Defense, Hopton Attack", eco: "A80" },
+            "d4 g6": { name: "Modern Defense", eco: "A40" },
+            "d4 c5": { name: "Benoni Defense", eco: "A43" },
+            "d4 d6": { name: "Wade Defense", eco: "A41" },
+            // === c4 openings (English) ===
             "c4": { name: "English Opening", eco: "A10" },
             "c4 e5": { name: "English Opening, Reversed Sicilian", eco: "A20" },
+            "c4 e5 Nf3": { name: "English Opening, King's English", eco: "A20" },
+            "c4 Nf6": { name: "English Opening, Anglo-Indian", eco: "A15" },
+            "c4 c5": { name: "English Symmetrical", eco: "A30" },
+            "c4 c6": { name: "English Opening, Caro-Kann Defensive System", eco: "A11" },
+            "c4 g6": { name: "English Opening, King's Indian formation", eco: "A16" },
+            "c4 e6": { name: "English Opening, Agincourt Defense", eco: "A13" },
+            "c4 d5": { name: "English Opening, Anglo-Scandinavian", eco: "A10" },
+            // === Nf3 openings (Réti) ===
             "Nf3": { name: "Réti Opening", eco: "A04" },
-            "b3": { name: "Larsen Opening", eco: "A01" },
-            "b3 e6": { name: "Larsen Opening", eco: "A01" },
-            "b3 e5": { name: "Larsen Opening", eco: "A01" }
+            "Nf3 d5": { name: "Réti Opening", eco: "A09" },
+            "Nf3 d5 c4": { name: "Réti Opening, Gambit", eco: "A09" },
+            "Nf3 Nf6": { name: "Réti Opening", eco: "A05" },
+            "Nf3 f5": { name: "Réti Opening vs Dutch", eco: "A04" },
+            // === Flank openings ===
+            "b3": { name: "Larsen's Opening", eco: "A01" },
+            "b3 e5": { name: "Larsen's Opening", eco: "A01" },
+            "b3 d5": { name: "Larsen's Opening", eco: "A01" },
+            "b4": { name: "Polish Opening (Orangutan)", eco: "A00" },
+            "b4 e5": { name: "Polish Opening", eco: "A00" },
+            "f4": { name: "Bird's Opening", eco: "A02" },
+            "f4 d5": { name: "Bird's Opening", eco: "A03" },
+            "f4 e5": { name: "Bird's Opening, From's Gambit", eco: "A02" },
+            "g3": { name: "King's Fianchetto Opening", eco: "A00" },
+            "g4": { name: "Grob's Attack", eco: "A00" },
+            "a3": { name: "Anderssen's Opening", eco: "A00" },
+            "Nc3": { name: "Van Geet Opening", eco: "A00" },
+            "Nc3 d5": { name: "Van Geet Opening", eco: "A00" },
         };
         
         // ==================== التعرف على الافتتاحيات ====================
@@ -1699,7 +1833,7 @@
 
                 // حركات الافتتاحية
                 if (i < openingLength) {
-                    moveClassifications[i] = { icon: 'icon-book', symbol: '📖', class: 'indicator-book' };
+                    moveClassifications[i] = { icon: 'icon-book', symbol: 'B', class: 'indicator-book' };
                     continue;
                 }
 
@@ -1893,39 +2027,143 @@
                 // ==================== Lichess Cloud ====================
         // Lichess Cloud Analysis - محذوف
         
-        // ==================== Simple Eval ====================
-        async function simpleEvaluation() {
-            document.getElementById('engine-status').textContent = 'المحرك: Simple Eval';
-            
-            const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-            const tempChess = new Chess();
-            
-            for (let i = 0; i < moveHistory.length; i++) {
-                const move = moveHistory[i];
-                tempChess.move(move);
-                
-                let evaluation = 0;
-                const board = tempChess.board();
-                
-                board.forEach(row => {
-                    row.forEach(square => {
-                        if (square) {
-                            const value = pieceValues[square.type] || 0;
-                            evaluation += square.color === 'w' ? value : -value;
-                        }
-                    });
-                });
-                
-                evaluation += (Math.random() - 0.5) * 0.5;
-                evaluations[i] = evaluation;
-                
-                const progress = ((i + 1) / moveHistory.length * 100).toFixed(0);
-                document.getElementById('analysis-progress-fill').style.width = progress + '%';
-                
-                await new Promise(r => setTimeout(r, 10));
+        // ==================== Simple Eval (محسّن) ====================
+        // Piece-Square Tables: تقيّم موضع كل قطعة على الرقعة
+        const PST = {
+            p: [ // بيدق - يفضل التقدم للأمام والسيطرة على المركز
+                [0,  0,  0,  0,  0,  0,  0,  0],
+                [50, 50, 50, 50, 50, 50, 50, 50],
+                [10, 10, 20, 30, 30, 20, 10, 10],
+                [5,  5, 10, 25, 25, 10,  5,  5],
+                [0,  0,  0, 20, 20,  0,  0,  0],
+                [5, -5,-10,  0,  0,-10, -5,  5],
+                [5, 10, 10,-20,-20, 10, 10,  5],
+                [0,  0,  0,  0,  0,  0,  0,  0]
+            ],
+            n: [ // حصان - الوسط أفضل من الأطراف
+                [-50,-40,-30,-30,-30,-30,-40,-50],
+                [-40,-20,  0,  0,  0,  0,-20,-40],
+                [-30,  0, 10, 15, 15, 10,  0,-30],
+                [-30,  5, 15, 20, 20, 15,  5,-30],
+                [-30,  0, 15, 20, 20, 15,  0,-30],
+                [-30,  5, 10, 15, 15, 10,  5,-30],
+                [-40,-20,  0,  5,  5,  0,-20,-40],
+                [-50,-40,-30,-30,-30,-30,-40,-50]
+            ],
+            b: [ // فيل - القطريات المفتوحة
+                [-20,-10,-10,-10,-10,-10,-10,-20],
+                [-10,  0,  0,  0,  0,  0,  0,-10],
+                [-10,  0,  5, 10, 10,  5,  0,-10],
+                [-10,  5,  5, 10, 10,  5,  5,-10],
+                [-10,  0, 10, 10, 10, 10,  0,-10],
+                [-10, 10, 10, 10, 10, 10, 10,-10],
+                [-10,  5,  0,  0,  0,  0,  5,-10],
+                [-20,-10,-10,-10,-10,-10,-10,-20]
+            ],
+            r: [ // رخ - الأعمدة المفتوحة والصف السابع
+                [0,  0,  0,  0,  0,  0,  0,  0],
+                [5, 10, 10, 10, 10, 10, 10,  5],
+                [-5, 0,  0,  0,  0,  0,  0, -5],
+                [-5, 0,  0,  0,  0,  0,  0, -5],
+                [-5, 0,  0,  0,  0,  0,  0, -5],
+                [-5, 0,  0,  0,  0,  0,  0, -5],
+                [-5, 0,  0,  0,  0,  0,  0, -5],
+                [0,  0,  0,  5,  5,  0,  0,  0]
+            ],
+            q: [ // وزير - متعدد الاستخدامات
+                [-20,-10,-10, -5, -5,-10,-10,-20],
+                [-10,  0,  0,  0,  0,  0,  0,-10],
+                [-10,  0,  5,  5,  5,  5,  0,-10],
+                [-5,   0,  5,  5,  5,  5,  0, -5],
+                [0,    0,  5,  5,  5,  5,  0, -5],
+                [-10,  5,  5,  5,  5,  5,  0,-10],
+                [-10,  0,  5,  0,  0,  0,  0,-10],
+                [-20,-10,-10, -5, -5,-10,-10,-20]
+            ],
+            k: [ // ملك - يختبئ في البداية، يتقدم في النهاية
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-20,-30,-30,-40,-40,-30,-30,-20],
+                [-10,-20,-20,-20,-20,-20,-20,-10],
+                [20, 20,  0,  0,  0,  0, 20, 20],
+                [20, 30, 10,  0,  0, 10, 30, 20]
+            ]
+        };
+
+        function getPSTValue(type, color, row, col) {
+            const table = PST[type];
+            if (!table) return 0;
+            // الأسود يُعكس الجدول
+            const r = color === 'w' ? row : (7 - row);
+            return (table[r][col] || 0) / 100;
+        }
+
+        function evaluatePosition(chessInstance) {
+            let score = 0;
+            const pieceValues = { p: 1.0, n: 3.2, b: 3.3, r: 5.0, q: 9.0, k: 0 };
+            const board = chessInstance.board();
+
+            let whiteBishops = 0, blackBishops = 0;
+            let whitePawns = [0,0,0,0,0,0,0,0], blackPawns = [0,0,0,0,0,0,0,0];
+
+            // حساب القيمة المادية + PST
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const sq = board[row][col];
+                    if (!sq) continue;
+                    const base = pieceValues[sq.type] || 0;
+                    const pos  = getPSTValue(sq.type, sq.color, row, col);
+                    const val  = base + pos;
+                    if (sq.color === 'w') {
+                        score += val;
+                        if (sq.type === 'b') whiteBishops++;
+                        if (sq.type === 'p') whitePawns[col]++;
+                    } else {
+                        score -= val;
+                        if (sq.type === 'b') blackBishops++;
+                        if (sq.type === 'p') blackPawns[col]++;
+                    }
+                }
             }
-            
-            document.getElementById('engine-status').textContent = 'اكتمل - Simple Eval';
+
+            // مكافأة الفيلين (bishop pair)
+            if (whiteBishops >= 2) score += 0.3;
+            if (blackBishops >= 2) score -= 0.3;
+
+            // عقوبة البيادق المزدوجة والمعزولة
+            for (let c = 0; c < 8; c++) {
+                if (whitePawns[c] > 1) score -= 0.15 * (whitePawns[c] - 1);
+                if (blackPawns[c] > 1) score += 0.15 * (blackPawns[c] - 1);
+                const wIsolated = (c===0||whitePawns[c-1]===0) && (c===7||whitePawns[c+1]===0) && whitePawns[c]>0;
+                const bIsolated = (c===0||blackPawns[c-1]===0) && (c===7||blackPawns[c+1]===0) && blackPawns[c]>0;
+                if (wIsolated) score -= 0.1;
+                if (bIsolated) score += 0.1;
+            }
+
+            // عقوبة الكشف على الملك
+            if (chessInstance.isCheck()) {
+                score += chessInstance.turn() === 'w' ? -0.5 : 0.5;
+            }
+
+            return score;
+        }
+
+        async function simpleEvaluation() {
+            document.getElementById('engine-status').textContent = 'المحرك: Simple Eval+';
+            const tempChess = new Chess();
+
+            for (let i = 0; i < moveHistory.length; i++) {
+                tempChess.move(moveHistory[i]);
+                evaluations[i] = evaluatePosition(tempChess);
+                const pct = Math.round((i + 1) / moveHistory.length * 100);
+                document.getElementById('analysis-progress-fill').style.width = pct + '%';
+                if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
+            }
+
+            document.getElementById('engine-status').textContent = 'اكتمل - Simple Eval+';
+            appLog('✅ Simple Eval+ اكتمل', 'success');
         }
         
         // ==================== عرض النتائج ====================
@@ -2009,6 +2247,9 @@
                     updateBoardPosition();
                     highlightCurrentMove();
                     showMoveIndicator(move, moveType);
+                    const cEval = evaluations[i] || 0;
+                    const pEval = i > 0 ? (evaluations[i-1] || 0) : 0;
+                    showMoveExplanation(move, moveType, cEval, pEval, isWhiteMove, i);
                 });
                 
                 if (isWhiteMove) {
@@ -2060,6 +2301,78 @@
         }
         
         // ==================== مؤشر الحركة على الرقعة ====================
+
+        // ==================== تفسير النقلات ====================
+        function getMoveExplanation(move, moveType, currentEval, previousEval, isWhite, moveIndex) {
+            const diff = isWhite ? (currentEval - previousEval) : (previousEval - currentEval);
+            const absDiff = Math.abs(diff);
+            const playerName = isWhite ? currentGameData?.white?.username : currentGameData?.black?.username;
+            const piece = { p:'البيدق', n:'الحصان', b:'الفيل', r:'الرخ', q:'الوزير', k:'الملك' };
+            const pieceName = piece[move.piece] || 'القطعة';
+            const cls = moveType.class;
+
+            // تقييم الوضع
+            const evalStr = currentEval > 0
+                ? `تفوق الأبيض بـ ${Math.abs(currentEval).toFixed(1)}`
+                : currentEval < 0
+                ? `تفوق الأسود بـ ${Math.abs(currentEval).toFixed(1)}`
+                : 'الوضع متوازن';
+
+            let text = '';
+            let borderColor = 'var(--accent-cyan)';
+
+            if (cls === 'indicator-book') {
+                text = `نقلة من الذاكرة الافتتاحية 📚`;
+                borderColor = 'var(--text-secondary)';
+            } else if (cls === 'indicator-brilliant') {
+                text = `نقلة مدهشة!! وجد ${playerName} حركة رائعة غير متوقعة بـ${pieceName}.`;
+                borderColor = '#00bcd4';
+            } else if (cls === 'indicator-great') {
+                text = `نقلة رائعة! تحسّن الوضع بشكل ملحوظ بعد تحريك ${pieceName}.`;
+                borderColor = '#4fc3f7';
+            } else if (cls === 'indicator-best') {
+                text = `أفضل نقلة في الموضع. ${pieceName} إلى ${move.to} يحافظ على أفضل وضع ممكن.`;
+                borderColor = 'var(--accent-green)';
+            } else if (cls === 'indicator-excellent') {
+                text = `نقلة ممتازة. ${pieceName} إلى ${move.to} خطوة جيدة جداً.`;
+                borderColor = '#81c784';
+            } else if (cls === 'indicator-good') {
+                text = `نقلة جيدة. ${pieceName} إلى ${move.to} معقولة وتحافظ على التوازن.`;
+                borderColor = '#aed581';
+            } else if (cls === 'indicator-inaccuracy') {
+                text = `نقلة غير دقيقة. كان بإمكان ${playerName} اختيار خطوة أفضل بدل ${pieceName} إلى ${move.to}.`;
+                borderColor = 'var(--accent-gold)';
+            } else if (cls === 'indicator-mistake') {
+                text = `خطأ! تحريك ${pieceName} إلى ${move.to} أضعف الوضع بمقدار ${absDiff.toFixed(1)} نقطة.`;
+                if (move.captured) text += ` فقدان ${piece[move.captured]||'قطعة'} كان يمكن تجنبه.`;
+                borderColor = '#ff8a65';
+            } else if (cls === 'indicator-blunder') {
+                const lost = absDiff > 3 ? 'خسارة فادحة' : 'خطأ كبير';
+                text = `خطأ فادح!! ${lost} - ${pieceName} إلى ${move.to} خسّر الوضع بـ ${absDiff.toFixed(1)} نقطة.`;
+                if (move.captured) text += ` التضحية بـ${piece[move.captured]||'القطعة'} لم تكن صحيحة.`;
+                borderColor = 'var(--loss-red)';
+            }
+
+            return { text, evalStr, borderColor, icon: moveType.symbol };
+        }
+
+        function showMoveExplanation(move, moveType, currentEval, previousEval, isWhite, moveIndex) {
+            const box = document.getElementById('move-explanation');
+            if (!box) return;
+
+            // لا نعرض التفسير إذا لم يكن هناك تحليل
+            if (!evaluations || evaluations.length === 0) { box.style.display = 'none'; return; }
+
+            const exp = getMoveExplanation(move, moveType, currentEval, previousEval, isWhite, moveIndex);
+            if (!exp.text) { box.style.display = 'none'; return; }
+
+            document.getElementById('move-explanation-icon').textContent = exp.icon;
+            document.getElementById('move-explanation-text').textContent = exp.text;
+            document.getElementById('move-explanation-eval').textContent = exp.evalStr;
+            box.style.borderRightColor = exp.borderColor;
+            box.style.display = 'block';
+        }
+
         function showMoveIndicator(move, moveType) {
             // إزالة المؤشر القديم
             if (currentMoveIndicator) {
@@ -2223,13 +2536,14 @@
             // الهيدر يُحدَّث من displayMovesList مباشرة - لا نكتبه هنا
             
             const statItems = [
-                { key: 'book',       label: 'افتتاحية',   icon: 'icon-book',       symbol: '📖' },
                 { key: 'brilliant',  label: 'مدهشة',      icon: 'icon-brilliant',  symbol: '!!' },
                 { key: 'great',      label: 'رائعة',      icon: 'icon-great',      symbol: '!'  },
-                { key: 'best',       label: 'أفضل',       icon: 'icon-best',       symbol: '✓'  },
-                { key: 'excellent',  label: 'ممتازة',     icon: 'icon-excellent',  symbol: '✓'  },
+                { key: 'best',       label: 'أفضل',       icon: 'icon-best',      symbol: '★'  },
+                { key: 'excellent',  label: 'ممتازة',     icon: 'icon-excellent   ',  symbol: '%'  },
                 { key: 'good',       label: 'جيدة',       icon: 'icon-good',       symbol: '✓'  },
+                { key: 'book',       label: 'كتاب',   icon: 'icon-book',        symbol: 'B' },
                 { key: 'inaccuracy', label: 'غير دقيقة',  icon: 'icon-inaccuracy', symbol: '?!' },
+                { key: 'miss', label: 'إضاعة فرصة',  icon: 'icon-miss', symbol: 'X' },
                 { key: 'mistake',    label: 'خطأ',        icon: 'icon-mistake',    symbol: '?'  },
                 { key: 'blunder',    label: 'خطأ فادح',   icon: 'icon-blunder',    symbol: '??' },
             ];
