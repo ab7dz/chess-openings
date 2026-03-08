@@ -299,6 +299,57 @@
             pointer-events: all;
         }
         
+
+        /* ألوان الرقعة: أخضر وأبيض */
+        .white-1e1d7 { background-color: #f0d9b5 !important; }
+        .black-3c85d { background-color: #779952 !important; }
+        /* chessboardjs square class overrides */
+        .board-b72b1 .square-55d63.white-1e1d7 { background-color: #f0f0d0 !important; }
+        .board-b72b1 .square-55d63.black-3c85d { background-color: #4a7c59 !important; }
+
+        /* Override chessboard.js square colors globally */
+        #analysis-board .white-1e1d7 { background-color: #f0f0d0 !important; }
+        #analysis-board .black-3c85d { background-color: #4a7c59 !important; }
+        
+        /* Highlighted squares */
+        #analysis-board .highlight-yellow { background-color: rgba(255, 255, 0, 0.5) !important; }
+        #analysis-board .square-55d63.white-1e1d7 { background-color: #f0f0d0 !important; }
+        #analysis-board .square-55d63.black-3c85d { background-color: #4a7c59 !important; }
+
+        /* شريط التقييم الجانبي */
+        .eval-bar-container {
+            width: 16px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            align-self: stretch;
+        }
+        .eval-bar-white {
+            background: #f0f0d0;
+            transition: height 0.5s cubic-bezier(0.4,0,0.2,1);
+            width: 100%;
+            min-height: 2px;
+        }
+        .eval-bar-black {
+            background: #1a1a1a;
+            flex: 1;
+        }
+        .eval-bar-label {
+            position: absolute;
+            font-size: 8px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            left: 0; right: 0;
+            padding: 2px 0;
+        }
+        .eval-bar-label.top { top: 4px; color: #333; }
+        .eval-bar-label.bottom { bottom: 4px; color: #ccc; }
         /* Loading */
         .spinner {
             border: 3px solid rgba(255,255,255,0.1);
@@ -618,6 +669,163 @@
                 flex-direction: column;
             }
         }
+
+        /* ===== نافذة خيارات التحليل ===== */
+        .analysis-options-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .analysis-options-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .analysis-options-card {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 20px;
+            width: min(92vw, 360px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.25s;
+        }
+        .analysis-options-modal.active .analysis-options-card {
+            transform: translateY(0) scale(1);
+        }
+
+        /* خيارات العمق */
+        #options-depth-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .depth-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .depth-option:hover { border-color: rgba(255,255,255,0.2); }
+        .depth-option.selected {
+            border-color: var(--accent-green);
+            background: rgba(129,182,76,0.12);
+        }
+        .depth-option.selected-instant {
+            border-color: var(--accent-gold);
+            background: rgba(212,175,55,0.12);
+        }
+        .depth-icon { font-size: 1.4rem; min-width: 2rem; text-align: center; }
+        .depth-label { font-weight: 700; font-size: 0.9rem; }
+        .depth-desc  { font-size: 0.72rem; color: var(--text-secondary); }
+
+        /* زر ابدأ */
+        .start-analysis-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            background: var(--accent-green);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .start-analysis-btn:hover  { opacity: 0.9; transform: scale(1.01); }
+        .start-analysis-btn:active { transform: scale(0.98); }
+        .start-analysis-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ===== Bottom Sheet النتائج ===== */
+        .results-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .results-sheet-overlay.active { opacity: 1; pointer-events: all; }
+
+        .results-sheet {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            border-radius: 0;
+            z-index: 9001;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .results-sheet.active { transform: translateY(0); }
+
+        /* ===== Bottom Sheet المراجعة ===== */
+        .review-sheet {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 9200;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+        }
+        .review-sheet.active { transform: translateY(0); }
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* جدول النقلات الموحّد */
+        .moves-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            direction: ltr;
+        }
+        .moves-table tr { display: grid; grid-template-columns: 1fr 1fr; }
+        .moves-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .moves-table td:first-child {
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+        .moves-table td:hover { background: rgba(255,255,255,0.07); }
+        .moves-table td.active-move {
+            background: rgba(129,182,76,0.25);
+            border-radius: 4px;
+        }
+        .moves-table .move-row-w { background: rgba(255,255,255,0.02); }
+        .moves-table .move-row-b { background: rgba(0,0,0,0.15); }
+
     </style>
 </head>
 <body>
@@ -706,27 +914,240 @@
         
     </main>
     
-    <div id="analysis-modal" class="modal">
-        <div class="modal-content w-full" style="max-width: 1600px;">
-            <div class="sticky top-0 z-10 p-6 flex items-center justify-between" style="background: var(--bg-secondary); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <h2 class="text-2xl font-bold flex items-center gap-2">
-                    <i data-lucide="bar-chart-2" class="w-6 h-6" style="color: var(--accent-gold);"></i>
-                    مراجعة المباراة
-                </h2>
-                <div class="flex gap-2">
-                    <button id="download-pgn-btn" class="btn btn-secondary text-sm">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                        تحميل PGN
-                    </button>
-                    <button id="reanalyze-btn" class="btn btn-primary text-sm">
-                        <i data-lucide="refresh-ccw" class="w-4 h-4"></i>
-                        إعادة التحليل
-                    </button>
-                    <button id="close-modal" class="transition-colors" style="color: var(--text-secondary);">
-                        <i data-lucide="x" class="w-8 h-8"></i>
-                    </button>
+    <!-- ===== نافذة خيارات التحليل ===== -->
+    <div id="analysis-options-modal" class="analysis-options-modal">
+        <div class="analysis-options-card">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold">⚙️ خيارات التحليل</h2>
+                <button id="close-options-modal" style="color:var(--text-secondary); background:none; border:none; cursor:pointer; font-size:1.3rem;">✕</button>
+            </div>
+
+            <div id="options-depth-selector">
+                <div class="depth-option" data-depth="instant">
+                    <span class="depth-icon">🚀</span>
+                    <div><div class="depth-label">فوري</div><div class="depth-desc">Simple Eval - ثوانٍ</div></div>
+                </div>
+                <div class="depth-option selected" data-depth="fast">
+                    <span class="depth-icon">⚡</span>
+                    <div><div class="depth-label">سريع</div><div class="depth-desc">Stockfish 300ms/نقلة</div></div>
+                </div>
+                <div class="depth-option" data-depth="normal">
+                    <span class="depth-icon">⚖️</span>
+                    <div><div class="depth-label">متوازن</div><div class="depth-desc">Stockfish 800ms/نقلة</div></div>
+                </div>
+                <div class="depth-option" data-depth="deep">
+                    <span class="depth-icon">🔬</span>
+                    <div><div class="depth-label">عميق</div><div class="depth-desc">Stockfish 2000ms/نقلة</div></div>
                 </div>
             </div>
+
+            <!-- حالة المحرك والتقدم (تظهر بعد الضغط) -->
+            <div id="options-engine-status-wrap" style="display:none; margin-top:14px;">
+                <div class="rounded-lg p-3 text-center" style="background:var(--bg-tertiary);">
+                    <p id="options-engine-status" class="text-sm mb-2" style="color:var(--text-secondary);">جاري التحليل...</p>
+                    <div class="progress-bar">
+                        <div id="options-progress-fill" class="progress-bar-fill" style="width:0%; transition:width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="start-analysis-btn" class="start-analysis-btn" style="margin-top:16px;">
+                <i data-lucide="play" class="w-5 h-5"></i>
+                ابدأ التحليل
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== Bottom Sheet النتائج ===== -->
+    <div class="results-sheet-overlay" id="results-overlay"></div>
+    <div class="results-sheet" id="results-sheet">
+        <div style="padding:12px 16px 0;">
+            <div class="w-12 h-1 rounded-full mx-auto mb-3" style="background:var(--text-secondary);"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="font-bold text-lg">📊 نتائج التحليل</h2>
+                <div class="flex gap-2">
+                    <button id="reanalyze-btn" class="btn btn-secondary text-sm">
+                        <i data-lucide="refresh-ccw" class="w-4 h-4"></i>
+                    </button>
+                    <button id="download-pgn-btn" class="btn btn-secondary text-sm">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                    </button>
+                    <button id="close-results-sheet" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1.3rem;">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- منحنى المقابلة -->
+        <div style="padding:0 16px;">
+            <div class="eval-graph-container" style="height:90px; margin-bottom:12px;">
+                <canvas id="eval-chart" style="width:100%;height:100%;display:block;"></canvas>
+            </div>
+
+            <!-- اللاعبان والدقة -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="accuracy-card white">
+                    <div class="player-info">
+                        <img id="white-accuracy-avatar" src="" class="player-avatar">
+                        <div>
+                            <div id="white-accuracy-name" class="font-semibold text-sm"></div>
+                            <div id="white-accuracy-rating" class="rating-badge"></div>
+                        </div>
+                    </div>
+                    <div class="accuracy-label">الدقة</div>
+                    <div id="white-accuracy" class="accuracy-value">0.0</div>
+                </div>
+                <div class="accuracy-card black">
+                    <div class="player-info">
+                        <img id="black-accuracy-avatar" src="" class="player-avatar">
+                        <div>
+                            <div id="black-accuracy-name" class="font-semibold text-sm"></div>
+                            <div id="black-accuracy-rating" class="rating-badge"></div>
+                        </div>
+                    </div>
+                    <div class="accuracy-label">الدقة</div>
+                    <div id="black-accuracy" class="accuracy-value">0.0</div>
+                </div>
+            </div>
+
+            <!-- إحصائيات النقلات -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-center" style="color:var(--text-secondary);">الأبيض</h4>
+                    <div id="white-stats" class="stats-grid"></div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-2 text-center" style="color:var(--text-secondary);">الأسود</h4>
+                    <div id="black-stats" class="stats-grid"></div>
+                </div>
+            </div>
+
+            <!-- الافتتاحية -->
+            <div id="opening-info" class="opening-badge hidden" style="margin-bottom:12px;">
+                <div class="opening-name"></div>
+                <div class="opening-moves"></div>
+            </div>
+
+            <!-- زر المراجعة -->
+            <button id="open-review-btn" style="
+                width:100%; padding:16px; border-radius:14px; border:none;
+                background: var(--accent-green); color:#fff; font-size:1.05rem;
+                font-weight:700; cursor:pointer; margin-bottom:16px;
+                display:flex; align-items:center; justify-content:center; gap:10px;
+                transition: opacity 0.2s;
+            ">
+                <i data-lucide="play-circle" class="w-6 h-6"></i>
+                مراجعة النقلات
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== Bottom Sheet المراجعة (رقعة + جدول) ===== -->
+    <div class="review-sheet" id="review-sheet">
+        <div class="review-header">
+            <button id="close-review-btn" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);">
+                <i data-lucide="arrow-right" class="w-6 h-6"></i>
+            </button>
+            <span class="font-bold">مراجعة النقلات</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <span id="engine-status" style="font-size:0.7rem; color:var(--text-secondary);"></span>
+                <button id="btn-flip" class="btn btn-secondary p-2">
+                    <i data-lucide="repeat" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- الرقعة + شريط التقييم -->
+        <div style="display:flex; align-items:stretch; gap:6px; padding:8px;">
+            <!-- شريط التقييم: أسود فوق أبيض -->
+            <div class="eval-bar-container" id="eval-bar-container">
+                <div class="eval-bar-black" id="eval-bar-black"></div>
+                <div class="eval-bar-white" id="eval-bar-white" style="height:50%;"></div>
+                <span class="eval-bar-label top" id="eval-bar-top-label"></span>
+                <span class="eval-bar-label bottom" id="eval-bar-bot-label">=</span>
+            </div>
+            <!-- الرقعة بـ position:relative لتثبيت الإيقونات -->
+            <div style="flex:1; position:relative;" id="board-container">
+                <div id="analysis-board" style="width:100%;"></div>
+            </div>
+        </div>
+
+        <!-- أزرار التنقل -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 12px;">
+            <button id="btn-first" class="btn btn-secondary p-3">
+                <i data-lucide="chevrons-right" class="w-5 h-5"></i>
+            </button>
+            <button id="btn-prev" class="btn btn-secondary p-3">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+            <button id="btn-next" class="btn btn-secondary p-3">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <button id="btn-last" class="btn btn-secondary p-3">
+                <i data-lucide="chevrons-left" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- تفسير النقلة -->
+        <div id="move-explanation" style="
+            display:none; margin:0 12px 8px; padding:10px 12px;
+            border-radius:8px; background:var(--bg-tertiary);
+            font-size:0.8rem; line-height:1.5; text-align:right; direction:rtl;
+            border-right: 3px solid var(--accent-cyan);
+        ">
+            <div id="move-explanation-icon" style="font-size:1.1rem; margin-left:6px; float:right;"></div>
+            <div id="move-explanation-text" style="color:var(--text-primary);"></div>
+            <div id="move-explanation-eval" style="color:var(--text-secondary); font-size:0.75rem; margin-top:4px;"></div>
+        </div>
+
+        <!-- شريط النقلات الأفقي + تفسير النقلة -->
+        <div style="background:var(--bg-secondary); border-top:1px solid rgba(255,255,255,0.06);">
+            <div id="moves-scroll-bar" style="
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 0;
+                padding: 6px 8px;
+                scroll-behavior: smooth;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                direction: ltr;
+            ">
+                <!-- يُبنى بـ JS -->
+            </div>
+            <!-- تفسير النقلة تحت الشريط مباشرة -->
+            <div id="move-explanation-bar" style="
+                display:none; padding:8px 12px;
+                border-top: 1px solid rgba(255,255,255,0.06);
+                direction:rtl; text-align:right;
+                font-size:0.78rem; line-height:1.5;
+            ">
+                <span id="meb-icon" style="font-size:0.85rem; margin-left:5px;"></span>
+                <span id="meb-text" style="color:var(--text-primary);"></span>
+                <span id="meb-eval" style="color:var(--text-secondary); font-size:0.72rem; margin-right:6px;"></span>
+            </div>
+        </div>
+        <!-- جدول النقلات الرأسي (مخفي - للتوافق) -->
+        <div style="display:none;">
+            <table class="moves-table" id="moves-unified-table">
+                <tbody id="moves-unified-body"></tbody>
+            </table>
+        </div>
+
+        <!-- عناصر مخفية يحتاجها الكود القديم -->
+        <div style="display:none;">
+            <div id="moves-list"><div class="moves-columns">
+                <div class="moves-column"><div id="moves-white"></div></div>
+                <div class="moves-column"><div id="moves-black"></div></div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- Modal قديم (نبقيه مخفياً لأن الكود يرجع إليه) -->
+    <div id="analysis-modal" class="modal" style="display:none;">
+        <div class="modal-content w-full" style="max-width:1600px;">
+            <div class="sticky top-0 z-10 p-6 flex items-center justify-between" style="background:var(--bg-secondary);">
+                <h2>مراجعة المباراة</h2>
             
             <div class="p-6">
               
@@ -953,6 +1374,7 @@
                     Console
                 </h2>
                 <div class="flex items-center gap-3">
+                    <button id="copy-console-btn" class="text-xs px-3 py-1 rounded" style="background:var(--bg-tertiary); color:var(--text-secondary);">📋 نسخ</button>
                     <button id="clear-console-btn" class="text-xs px-3 py-1 rounded" style="background:var(--bg-tertiary); color:var(--text-secondary);">مسح</button>
                     <button id="close-opening-log-btn" class="text-slate-400 hover:text-white">
                         <i data-lucide="x" class="w-5 h-5"></i>
@@ -1105,6 +1527,14 @@
         
         function setAnalysisDepth(mode) {
             analysisDepth = mode;
+            try { localStorage.setItem('chess_analysis_depth', mode); } catch(e){}
+            // تحديث depth-option divs (الواجهة الجديدة)
+            document.querySelectorAll('.depth-option').forEach(o => {
+                const isActive = o.dataset.depth === mode;
+                o.classList.toggle('selected', isActive && mode !== 'instant');
+                o.classList.toggle('selected-instant', isActive && mode === 'instant');
+            });
+            // تحديث old button ids (للتوافق)
             ['instant','fast','normal','deep'].forEach(m => {
                 const btn = document.getElementById('depth-' + m);
                 if (btn) {
@@ -1113,11 +1543,23 @@
                     btn.style.color = isActive ? '#fff' : 'var(--text-secondary)';
                 }
             });
-            if (mode === 'instant') {
-                appLog('🚀 وضع فوري - Simple Eval (بدون Stockfish)', 'info');
-            }
         }
         window.setAnalysisDepth = setAnalysisDepth;
+
+        // مزامنة engine-status مع نافذة الخيارات
+        function syncEngineStatus(text) {
+            const el1 = document.getElementById('engine-status');
+            const el2 = document.getElementById('options-engine-status');
+            if (el1) el1.textContent = text;
+            if (el2) el2.textContent = text;
+        }
+        function syncProgress(pct) {
+            const el1 = document.getElementById('analysis-progress-fill');
+            const el2 = document.getElementById('options-progress-fill');
+            const p = pct + '%';
+            if (el1) el1.style.width = p;
+            if (el2) el2.style.width = p;
+        }
         let currentMoveIndicator = null;
         let openingInfo = null;
         let moveClassifications = [];
@@ -1693,47 +2135,45 @@
         }
         
         // ==================== تحليل المباراة ====================
-        async function analyzeGame(game) {
-            if (isAnalyzing) {
-                showToast('يوجد تحليل قيد التنفيذ');
-                return;
-            }
-            
+        // الألعاب المنتظرة للتحليل
+        let _pendingGame = null;
+
+        function analyzeGame(game) {
+            if (isAnalyzing) { showToast('يوجد تحليل قيد التنفيذ'); return; }
+            _pendingGame = game;
+            // فتح نافذة الخيارات
+            document.getElementById('analysis-options-modal').classList.add('active');
+            document.getElementById('options-engine-status-wrap').style.display = 'none';
+            document.getElementById('start-analysis-btn').disabled = false;
+            document.getElementById('start-analysis-btn').innerHTML = `<i data-lucide="play" class="w-5 h-5"></i> ابدأ التحليل`;
+            lucide.createIcons();
+        }
+
+        async function _runAnalysis(game) {
             currentGameData = game;
             chess = new Chess();
             chess.load_pgn(game.pgn);
-            
             moveHistory = chess.history({ verbose: true });
             appLog(`♟️ المباراة: ${moveHistory.length} نقلة (${Math.ceil(moveHistory.length/2)} رقعة)`, 'engine');
             currentMoveIndex = -1;
             evaluations = [];
-            
-            // إعداد الرقعة
+
             setupBoard();
-            
-            // عرض معلومات المباراة
             displayGameInfo(game);
-            
-            // فتح Modal
-            document.getElementById('analysis-modal').classList.add('active');
-            
-            // عرض مؤشر "جاري البحث عن الافتتاحية"
-            const openingElement = document.getElementById('opening-info');
-            openingElement.classList.remove('hidden');
-            openingElement.querySelector('.opening-name').textContent = 'جاري البحث عن الافتتاحية...';
-            openingElement.querySelector('.opening-moves').textContent = '';
-            
-            // اكتشاف الافتتاحية بشكل غير متزامن
+
+            // اكتشاف الافتتاحية في الخلفية
             Promise.resolve(detectOpening(moveHistory)).then(opening => {
                 openingInfo = opening;
-                displayOpening();
-            }).catch(error => {
-                appLog(`❌ خطأ كشف الافتتاحية: ${error.message}`, 'error');
-                openingElement.classList.add('hidden');
-            });
-            
-            // بدء التحليل
+            }).catch(() => { openingInfo = null; });
+
             await performAnalysis();
+
+            // أغلق نافذة الخيارات وافتح النتائج
+            document.getElementById('analysis-options-modal').classList.remove('active');
+            displayOpening();
+            document.getElementById('results-sheet').classList.add('active');
+            document.getElementById('results-overlay').classList.add('active');
+            lucide.createIcons();
         }
         
         // ==================== إعداد الرقعة ====================
@@ -1852,14 +2292,47 @@
 
                 moveClassifications[i] = moveType;
             }
+
+            // ===== كشف إضاعة الفرصة (Miss) =====
+            // إذا ارتكب الخصم blunder/mistake، والنقلة التالية لم تستغل الوضع
+            if (analysisDepth !== 'instant') {
+                for (let i = 1; i < moveHistory.length; i++) {
+                    const prevCls = moveClassifications[i - 1]?.class;
+                    if (prevCls !== 'indicator-blunder' && prevCls !== 'indicator-mistake') continue;
+                    if (moveClassifications[i]?.class === 'indicator-book') continue;
+
+                    const isWhite = i % 2 === 0;
+                    const cur  = evaluations[i]     !== undefined ? evaluations[i]     : 0;
+                    const prev = evaluations[i - 1] !== undefined ? evaluations[i - 1] : 0;
+                    // diff من منظور اللاعب الحالي
+                    const diff = isWhite ? (cur - prev) : (prev - cur);
+                    // إذا لم يستغل الميزة (تحسّن أقل من 0.5)
+                    if (diff < 0.5) {
+                        moveClassifications[i] = { icon: 'icon-miss', symbol: 'X', class: 'indicator-miss' };
+                    }
+                }
+            }
         }
 
        
         // ==================== التحليل ====================
+        function _syncEngineStatus(msg) {
+            const el = document.getElementById('engine-status');
+            const el2 = document.getElementById('options-engine-status');
+            if (el) el.textContent = msg;
+            if (el2) el2.textContent = msg;
+        }
+        function _syncProgress(pct) {
+            const el = document.getElementById('analysis-progress-fill');
+            const el2 = document.getElementById('options-progress-fill');
+            if (el) el.style.width = pct + '%';
+            if (el2) el2.style.width = pct + '%';
+        }
+
         async function performAnalysis() {
             isAnalyzing = true;
-            document.getElementById('engine-status').textContent = 'جاري التحليل...';
-            document.getElementById('analysis-progress').classList.remove('hidden');
+            _syncEngineStatus('جاري التحليل...');
+            document.getElementById('analysis-progress')?.classList.remove('hidden');
             
             try {
                 if (analysisDepth === 'instant') {
@@ -1877,15 +2350,23 @@
                 displayAnalysisResults();
                 await saveAnalysisToStorage();
                 showToast('✅ اكتمل التحليل');
+                // أغلق نافذة الخيارات وافتح النتائج
+                document.getElementById('analysis-options-modal').classList.remove('active');
+                document.getElementById('results-sheet').classList.add('active');
+                document.getElementById('results-overlay').classList.add('active');
                 
             } catch (error) {
                 appLog(`❌ خطأ في التحليل: ${error.message}`, 'error');
                 showToast('خطأ في التحليل');
                 await simpleEvaluation();
                 displayAnalysisResults();
+                document.getElementById('analysis-options-modal').classList.remove('active');
+                document.getElementById('results-sheet').classList.add('active');
+                document.getElementById('results-overlay').classList.add('active');
             } finally {
                 isAnalyzing = false;
                 document.getElementById('analysis-progress').classList.add('hidden');
+            document.getElementById('options-engine-status-wrap') && (document.getElementById('options-engine-status-wrap').style.display = 'none');
             }
         }
         
@@ -1901,7 +2382,7 @@
             ];
 
             for (const eng of engines) {
-                document.getElementById('engine-status').textContent = `⏳ تحميل ${eng.label}...`;
+                _syncEngineStatus(`⏳ تحميل ${eng.label}...`);
                 appLog(`⏳ جاري تحميل ${eng.label}...`, 'engine');
                 const worker = await testWorker(eng.url);
                 if (worker) {
@@ -1911,7 +2392,7 @@
                 appLog(`❌ فشل: ${eng.label}`, 'warn');
             }
 
-            document.getElementById('engine-status').textContent = '❌ Stockfish غير متاح';
+            _syncEngineStatus('❌ Stockfish غير متاح');
             appLog('❌ فشل تحميل جميع المحركات', 'error');
             return false;
         }
@@ -1939,7 +2420,7 @@
         // تحليل باستخدام Worker القديم
         function runAnalysisWorker(stockfish, engineLabel) {
             return new Promise((resolve) => {
-                document.getElementById('engine-status').textContent = `⚙️ ${engineLabel}`;
+                _syncEngineStatus(`⚙️ ${engineLabel}`);
                 const fenList = buildFenList();
                 let idx = 0;
                 let analyzing = false;
@@ -1963,7 +2444,7 @@
                     if (idx >= fenList.length) {
                         stockfish.removeEventListener('message', onMsg);
                         stockfish.terminate();
-                        document.getElementById('engine-status').textContent = `اكتمل - ${engineLabel}`;
+                        _syncEngineStatus(`اكتمل - ${engineLabel}`);
                         appLog(`✅ التحليل اكتمل - ${engineLabel}`, 'success');
                         resolve(true); return;
                     }
@@ -1981,7 +2462,7 @@
                     if (idx < fenList.length) {
                         stockfish.removeEventListener('message', onMsg);
                         stockfish.terminate();
-                        document.getElementById('engine-status').textContent = `⚠️ ${engineLabel} - انتهى الوقت`;
+                        _syncEngineStatus(`⚠️ ${engineLabel} - انتهى الوقت`);
                         appLog(`⚠️ انتهى وقت التحليل - ${engineLabel}`, 'warn');
                         resolve(idx > 0);
                     }
@@ -2020,8 +2501,8 @@
 
         function updateProgress(idx, total, label) {
             const pct = Math.round(idx / total * 100);
-            document.getElementById('analysis-progress-fill').style.width = pct + '%';
-            document.getElementById('engine-status').textContent = `${label} (${pct}%)`;
+            _syncProgress(parseFloat(pct + '%'));
+            _syncEngineStatus(`${label} (${pct}%)`);
         }
 
                 // ==================== Lichess Cloud ====================
@@ -2143,7 +2624,7 @@
             }
 
             // عقوبة الكشف على الملك
-            if (chessInstance.isCheck()) {
+            if (chessInstance.in_check()) {
                 score += chessInstance.turn() === 'w' ? -0.5 : 0.5;
             }
 
@@ -2151,28 +2632,31 @@
         }
 
         async function simpleEvaluation() {
-            document.getElementById('engine-status').textContent = 'المحرك: Simple Eval+';
+            _syncEngineStatus('المحرك: Simple Eval+');
             const tempChess = new Chess();
 
             for (let i = 0; i < moveHistory.length; i++) {
                 tempChess.move(moveHistory[i]);
                 evaluations[i] = evaluatePosition(tempChess);
                 const pct = Math.round((i + 1) / moveHistory.length * 100);
-                document.getElementById('analysis-progress-fill').style.width = pct + '%';
+                _syncProgress(parseFloat(pct + '%'));
                 if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
             }
 
-            document.getElementById('engine-status').textContent = 'اكتمل - Simple Eval+';
+            _syncEngineStatus('اكتمل - Simple Eval+');
             appLog('✅ Simple Eval+ اكتمل', 'success');
         }
         
         // ==================== عرض النتائج ====================
         function displayAnalysisResults() {
             displayPlayerAccuracy();
-            // run extra pass to classify moves (book / brilliant) based on final stats
             applyBrilliantAndBookClassifications();
             displayMovesList();
             drawEvaluationChart();
+            // أعد بناء جدول المراجعة إن كان مفتوحاً
+            if (document.getElementById('review-sheet')?.classList.contains('active')) {
+                buildUnifiedMovesTable();
+            }
             calculateStatistics();
         }
         
@@ -2379,24 +2863,83 @@
                 currentMoveIndicator.remove();
                 currentMoveIndicator = null;
             }
-            
+            document.querySelectorAll('.king-death-indicator').forEach(e => e.remove());
+
             if (!moveType.class) return;
-            
-            // الحصول على موقع المربع
+
+            const containerEl = document.getElementById('board-container');
+            if (!containerEl) return;
+
+            // فحص المات: هل هذه النقلة أدت لكش مات؟
+            const tempChess = new Chess();
+            for (let k = 0; k <= currentMoveIndex; k++) tempChess.move(moveHistory[k]);
+            const isCheckmate = tempChess.in_checkmate();
+
+            if (isCheckmate) {
+                // إيجاد موقع الملك المقهور
+                const loserColor = tempChess.turn(); // اللاعب الذي عليه الدور = الخاسر
+                const board2d = tempChess.board();
+                let kingSquare = null;
+                const files = ['a','b','c','d','e','f','g','h'];
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const p = board2d[r][c];
+                        if (p && p.type === 'k' && p.color === loserColor) {
+                            kingSquare = files[c] + (8 - r);
+                        }
+                    }
+                }
+                if (kingSquare) {
+                    const kingSq = document.querySelector(`[data-square="${kingSquare}"]`);
+                    if (kingSq) {
+                        const kRect = kingSq.getBoundingClientRect();
+                        const cRect = containerEl.getBoundingClientRect();
+                        const skull = document.createElement('div');
+                        skull.className = 'king-death-indicator';
+                        skull.textContent = '💀';
+                        skull.style.cssText = `
+                            position:absolute;
+                            top:${kRect.top - cRect.top - 2}px;
+                            left:${kRect.left - cRect.left - 2}px;
+                            width:${kRect.width + 4}px;
+                            height:${kRect.height + 4}px;
+                            display:flex; align-items:center; justify-content:center;
+                            font-size:${kRect.width * 0.6}px;
+                            background:rgba(180,0,0,0.45);
+                            border-radius:4px;
+                            pointer-events:none;
+                            z-index:20;
+                        `;
+                        containerEl.appendChild(skull);
+                    }
+                }
+                // أيقونة المات فوق آخر نقلة أيضاً
+                const squareEl = document.querySelector(`[data-square="${move.to}"]`);
+                if (squareEl) {
+                    const rect = squareEl.getBoundingClientRect();
+                    const cRect = containerEl.getBoundingClientRect();
+                    const indicator = document.createElement('div');
+                    indicator.className = 'move-indicator icon-blunder king-death-indicator';
+                    indicator.textContent = '#';
+                    indicator.style.cssText = `position:absolute; top:${rect.top-cRect.top+rect.height/2-14}px; left:${rect.left-cRect.left+rect.width/2-14}px; font-weight:bold; font-size:0.9rem; z-index:21;`;
+                    containerEl.appendChild(indicator);
+                }
+                return;
+            }
+
+            // الأيقونة العادية
             const squareEl = document.querySelector(`[data-square="${move.to}"]`);
             if (!squareEl) return;
             
             const rect = squareEl.getBoundingClientRect();
-            const containerRect = document.getElementById('board-container').getBoundingClientRect();
+            const cRect = containerEl.getBoundingClientRect();
             
             const indicator = document.createElement('div');
             indicator.className = `move-indicator ${moveType.class}`;
             indicator.textContent = moveType.symbol;
-            indicator.style.position = 'absolute';
-            indicator.style.top = (rect.top - containerRect.top + rect.height / 2 - 14) + 'px';
-            indicator.style.left = (rect.left - containerRect.left + rect.width / 2 - 14) + 'px';
+            indicator.style.cssText = `position:absolute; top:${rect.top-cRect.top+rect.height/2-14}px; left:${rect.left-cRect.left+rect.width/2-14}px;`;
             
-            document.getElementById('board-container').appendChild(indicator);
+            containerEl.appendChild(indicator);
             currentMoveIndicator = indicator;
         }
         
@@ -2463,8 +3006,8 @@
         // ==================== الإحصائيات ====================
         function calculateStatistics() {
             const moveStats = {
-                white: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 },
-                black: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 }
+                white: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, miss: 0, blunder: 0 },
+                black: { book: 0, brilliant: 0, great: 0, best: 0, excellent: 0, good: 0, inaccuracy: 0, mistake: 0, miss: 0, blunder: 0 }
             };
             
             let whiteTotal = 0, blackTotal = 0, whiteGood = 0, blackGood = 0;
@@ -2500,6 +3043,9 @@
                     stats.inaccuracy++;
                 } else if (cls === 'indicator-mistake') {
                     stats.mistake++;
+                } else if (cls === 'indicator-miss') {
+                    stats.miss++;
+                    // miss = فرصة أُهدرت، لا تُحسب كنقلة جيدة
                 } else if (cls === 'indicator-blunder') {
                     stats.blunder++;
                 } else {
@@ -2575,6 +3121,11 @@
             }
             board.position(tempChess.fen());
             
+            // تحديث eval bar
+            const _ev = evaluations && evaluations[currentMoveIndex] !== undefined
+                ? evaluations[currentMoveIndex] : 0;
+            updateEvalBar(_ev);
+
             // عرض مؤشر الحركة
             if (currentMoveIndex >= 0) {
                 const move = moveHistory[currentMoveIndex];
@@ -2591,32 +3142,15 @@
             }
         }
         
-        function highlightCurrentMove() {
-            // toggle active class based on data-move-index across both columns
-            document.querySelectorAll('.move-row').forEach((row) => {
-                const idx = parseInt(row.dataset.moveIndex, 10);
-                row.classList.toggle('active', idx === currentMoveIndex);
-            });
-            
-            // ensure visible: scroll into view for the active row in its column
-            const active = document.querySelector(`.move-row[data-move-index="${currentMoveIndex}"]`);
-            if (active) {
-                const parent = active.parentElement;
-                if (parent) {
-                    const parentRect = parent.getBoundingClientRect();
-                    const activeRect = active.getBoundingClientRect();
-                    if (activeRect.top < parentRect.top || activeRect.bottom > parentRect.bottom) {
-                        active.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    }
-                }
-            }
-        }
+        // highlightCurrentMove - moved below
         
         // ==================== أزرار التحكم ====================
         document.getElementById('btn-first').addEventListener('click', () => {
             currentMoveIndex = -1;
             board.position('start');
+            updateEvalBar(0);
             highlightCurrentMove();
+            _updateMoveExplanationBar(-1);
             if (currentMoveIndicator) {
                 currentMoveIndicator.remove();
                 currentMoveIndicator = null;
@@ -2644,6 +3178,7 @@
                 currentMoveIndex++;
                 updateBoardPosition();
                 highlightCurrentMove();
+                _updateMoveExplanationBar(currentMoveIndex);
             }
         });
         
@@ -2651,6 +3186,7 @@
             currentMoveIndex = moveHistory.length - 1;
             updateBoardPosition();
             highlightCurrentMove();
+            _updateMoveExplanationBar(currentMoveIndex);
         });
         
         document.getElementById('btn-flip').addEventListener('click', () => {
@@ -2716,13 +3252,12 @@
             
             document.getElementById('saved-overlay').classList.remove('active');
             document.getElementById('saved-sheet').classList.remove('active');
-            document.getElementById('analysis-modal').classList.add('active');
             
             // Detect and show opening for saved analyses
             openingInfo = await detectOpening(moveHistory);
             displayOpening();
             
-            document.getElementById('engine-status').textContent = 'تحليل محفوظ';
+            _syncEngineStatus('تحليل محفوظ');
             displayAnalysisResults();
         }
         
@@ -2841,7 +3376,7 @@
         
         document.getElementById('load-more-btn').addEventListener('click', loadMoreGames);
         
-        document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('close-modal')?.addEventListener('click', () => {
             document.getElementById('analysis-modal').classList.remove('active');
         });
         
@@ -3084,9 +3619,310 @@
         lucide.createIcons();
         
         // ربط زر مسح Console
+        document.getElementById('copy-console-btn')?.addEventListener('click', () => {
+            const text = _consoleLogs.map(e => `[${e.time}] ${e.msg}`).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-console-btn');
+                btn.textContent = '✓ تم';
+                btn.style.color = 'var(--accent-green)';
+                setTimeout(() => { btn.textContent = '📋 نسخ'; btn.style.color = ''; }, 1500);
+            }).catch(() => showToast('⚠️ فشل النسخ'));
+        });
+
         document.getElementById('clear-console-btn')?.addEventListener('click', () => {
             _consoleLogs.length = 0;
             _renderConsole();
+        });
+
+        // ===== نافذة خيارات التحليل =====
+        document.getElementById('close-options-modal')?.addEventListener('click', () => {
+            if (!isAnalyzing) document.getElementById('analysis-options-modal').classList.remove('active');
+        });
+
+        // اختيار وضع التحليل
+        document.querySelectorAll('.depth-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                if (isAnalyzing) return;
+                document.querySelectorAll('.depth-option').forEach(o => {
+                    o.classList.remove('selected','selected-instant');
+                });
+                const depth = opt.dataset.depth;
+                opt.classList.add(depth === 'instant' ? 'selected-instant' : 'selected');
+                setAnalysisDepth(depth);
+            });
+        });
+
+        // زر ابدأ التحليل
+        document.getElementById('start-analysis-btn')?.addEventListener('click', async () => {
+            if (!_pendingGame || isAnalyzing) return;
+            const btn = document.getElementById('start-analysis-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span style="opacity:0.7">جاري التحليل...</span>';
+            document.getElementById('options-engine-status-wrap').style.display = 'block';
+            await _runAnalysis(_pendingGame);
+        });
+
+        // ===== Bottom Sheet النتائج =====
+        document.getElementById('results-overlay')?.addEventListener('click', () => {
+            document.getElementById('results-sheet').classList.remove('active');
+            document.getElementById('results-overlay').classList.remove('active');
+        });
+        document.getElementById('close-results-sheet')?.addEventListener('click', () => {
+            document.getElementById('results-sheet').classList.remove('active');
+            document.getElementById('results-overlay').classList.remove('active');
+        });
+
+        // زر مراجعة النقلات
+        document.getElementById('open-review-btn')?.addEventListener('click', () => {
+            document.getElementById('review-sheet').classList.add('active');
+            buildUnifiedMovesTable();
+            buildHorizontalMovesBar();
+            highlightCurrentMove();
+            lucide.createIcons();
+        });
+
+        // ===== Review Sheet =====
+        document.getElementById('close-review-btn')?.addEventListener('click', () => {
+            document.getElementById('review-sheet').classList.remove('active');
+        });
+
+        // ===== بناء جدول النقلات الموحّد =====
+        function buildUnifiedMovesTable() {
+            const tbody = document.getElementById('moves-unified-body');
+            if (!tbody || !moveHistory || moveHistory.length === 0) return;
+            tbody.innerHTML = '';
+
+            const totalRows = Math.ceil(moveHistory.length / 2);
+            for (let row = 0; row < totalRows; row++) {
+                const wi = row * 2;       // white move index
+                const bi = row * 2 + 1;   // black move index
+
+                const wMove = moveHistory[wi];
+                const bMove = bi < moveHistory.length ? moveHistory[bi] : null;
+                const wEval = evaluations[wi] !== undefined ? evaluations[wi] : null;
+                const bEval = evaluations[bi] !== undefined ? evaluations[bi] : null;
+                const wCls  = moveClassifications?.[wi];
+                const bCls  = moveClassifications?.[bi];
+
+                const wIcon  = wCls ? `<span class="move-icon ${wCls.icon}" style="font-size:0.65rem;padding:1px 3px;">${wCls.symbol}</span> ` : '';
+                const bIcon  = bCls ? `<span class="move-icon ${bCls.icon}" style="font-size:0.65rem;padding:1px 3px;">${bCls.symbol}</span> ` : '';
+                const wEvalStr = wEval !== null ? `<span class="eval-tiny">${wEval > 0 ? '+' : ''}${wEval.toFixed(2)}</span>` : '';
+                const bEvalStr = bEval !== null ? `<span class="eval-tiny">${bEval > 0 ? '+' : ''}${bEval.toFixed(2)}</span>` : '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="move-num">${row + 1}</td>
+                    <td class="move-cell move-cell-white ${wi === currentMoveIndex ? 'active-move' : ''}"
+                        data-idx="${wi}" style="padding:6px 8px; border-radius:8px;">
+                        ${wIcon}${wMove.san}${wEvalStr}
+                    </td>
+                    <td class="move-cell move-cell-black ${bi === currentMoveIndex ? 'active-move' : ''}"
+                        data-idx="${bi}" style="padding:6px 8px; border-radius:8px; ${!bMove ? 'visibility:hidden' : ''}">
+                        ${bMove ? bIcon + bMove.san + bEvalStr : ''}
+                    </td>
+                `;
+
+                // click handlers
+                tr.querySelectorAll('.move-cell[data-idx]').forEach(cell => {
+                    const idx = parseInt(cell.dataset.idx);
+                    if (isNaN(idx) || idx >= moveHistory.length) return;
+                    cell.style.cursor = 'pointer';
+                    cell.addEventListener('click', () => {
+                        currentMoveIndex = idx;
+                        updateBoardPosition();
+                        highlightCurrentMove();
+                        // highlight in table
+                        tbody.querySelectorAll('.move-cell').forEach(c => c.classList.remove('active-move'));
+                        cell.classList.add('active-move');
+                        const move = moveHistory[idx];
+                        const ev = evaluations[idx] || 0;
+                        const prev = idx > 0 ? (evaluations[idx-1]||0) : 0;
+                        const isW = idx % 2 === 0;
+                        const mt = moveClassifications?.[idx] || getMoveType(ev, prev, isW);
+                        showMoveIndicator(move, mt);
+                        const expl = getMoveExplanation(move, mt, ev, prev, isW, idx);
+                        if (expl) {
+                            document.getElementById('move-explanation').style.display = 'block';
+                            document.getElementById('move-explanation-icon').textContent = mt.symbol || '';
+                            document.getElementById('move-explanation-text').textContent = expl.text || '';
+                            document.getElementById('move-explanation-eval').textContent = expl.eval || '';
+                        }
+                    });
+                });
+
+                tbody.appendChild(tr);
+            }
+        }
+
+        // تحديث الجدول عند تغيير النقلة
+        // ===== بناء شريط النقلات الأفقي =====
+        function buildHorizontalMovesBar() {
+            const bar = document.getElementById('moves-scroll-bar');
+            if (!bar || !moveHistory || moveHistory.length === 0) return;
+            bar.innerHTML = '';
+
+            // ألوان الأيقونات حسب النوع (inline بدون position:absolute)
+            const iconColors = {
+                'icon-brilliant':  { bg:'#1baca6', color:'#fff' },
+                'icon-great':      { bg:'#5c8a3c', color:'#fff' },
+                'icon-best':       { bg:'#5c8a3c', color:'#fff' },
+                'icon-excellent':  { bg:'#5c8a3c', color:'#fff' },
+                'icon-good':       { bg:'#5c8a3c', color:'#fff' },
+                'icon-inaccuracy': { bg:'#e0a030', color:'#000' },
+                'icon-mistake':    { bg:'#e07030', color:'#fff' },
+                'icon-miss':       { bg:'#d2684f', color:'#fff' },
+                'icon-blunder':    { bg:'#c0392b', color:'#fff' },
+                'icon-book':       { bg:'#8b6914', color:'#fff' },
+            };
+
+            for (let i = 0; i < moveHistory.length; i++) {
+                const isWhite = i % 2 === 0;
+                const mv = moveHistory[i];
+                const cls = moveClassifications && moveClassifications[i];
+                const symbol = cls ? cls.symbol : '';
+                const iconCls = cls ? cls.icon : '';
+                const moveNum = Math.floor(i / 2) + 1;
+                const ic = iconColors[iconCls];
+
+                const chip = document.createElement('div');
+                chip.dataset.idx = i;
+                chip.style.cssText = `
+                    display: inline-flex; align-items: center; gap: 2px;
+                    padding: 4px 6px; border-radius: 6px; cursor: pointer;
+                    white-space: nowrap; font-size: 0.75rem; flex-shrink: 0;
+                    background: ${isWhite ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.3)'};
+                    border: 2px solid transparent;
+                    color: var(--text-primary);
+                    transition: background 0.15s;
+                    font-family: monospace;
+                `;
+
+                // رقم النقلة (للأبيض فقط)
+                if (isWhite) {
+                    const numSpan = document.createElement('span');
+                    numSpan.style.cssText = 'font-size:0.62rem; color:var(--text-secondary); margin-left:1px;';
+                    numSpan.textContent = moveNum + '.';
+                    chip.appendChild(numSpan);
+                }
+
+                // نص النقلة
+                const moveSpan = document.createElement('span');
+                moveSpan.style.cssText = 'font-weight:600; font-size:0.78rem;';
+                moveSpan.textContent = mv.san;
+                chip.appendChild(moveSpan);
+
+                // أيقونة النوع (inline - لا position absolute)
+                if (ic && symbol) {
+                    const iconSpan = document.createElement('span');
+                    iconSpan.style.cssText = `
+                        display:inline-flex; align-items:center; justify-content:center;
+                        background:${ic.bg}; color:${ic.color};
+                        font-size:0.55rem; font-weight:bold;
+                        padding:1px 3px; border-radius:3px;
+                        line-height:1; flex-shrink:0;
+                        position:static;
+                    `;
+                    iconSpan.textContent = symbol;
+                    chip.appendChild(iconSpan);
+                }
+
+                chip.addEventListener('click', () => {
+                    currentMoveIndex = i;
+                    updateBoardPosition();
+                    highlightCurrentMove();
+                    _updateMoveExplanationBar(i);
+                });
+
+                bar.appendChild(chip);
+            }
+        }
+
+        // ===== تحديث صندوق تفسير النقلة تحت الشريط =====
+        function _updateMoveExplanationBar(idx) {
+            const box = document.getElementById('move-explanation-bar');
+            if (!box) return;
+            if (idx < 0 || !moveHistory || !moveHistory[idx]) {
+                box.style.display = 'none';
+                return;
+            }
+            const move = moveHistory[idx];
+            const cls = moveClassifications && moveClassifications[idx];
+            const ev = evaluations && evaluations[idx] !== undefined ? evaluations[idx] : 0;
+            const prev = idx > 0 && evaluations[idx-1] !== undefined ? evaluations[idx-1] : 0;
+            const isW = idx % 2 === 0;
+            const mt = cls || getMoveType(ev, prev, isW);
+            const expl = getMoveExplanation(move, mt, ev, prev, isW, idx);
+            if (!expl || !expl.text) { box.style.display = 'none'; return; }
+
+            document.getElementById('meb-icon').textContent = mt.symbol || '';
+            document.getElementById('meb-text').textContent = expl.text || '';
+            document.getElementById('meb-eval').textContent = expl.evalStr || '';
+            box.style.display = 'block';
+        }
+
+        // ===== تحديث eval bar =====
+        function updateEvalBar(evalScore) {
+            const barWhite = document.getElementById('eval-bar-white');
+            const topLabel = document.getElementById('eval-bar-top-label');
+            const botLabel = document.getElementById('eval-bar-bot-label');
+            if (!barWhite) return;
+
+            const score = evalScore !== undefined && evalScore !== null ? evalScore : 0;
+            // clamp بين -6 و +6
+            const clamped = Math.max(-6, Math.min(6, score));
+            // الأسود في الأعلى، الأبيض في الأسفل (مثل chess.com)
+            // whitePct = نسبة الجزء الأبيض من الأسفل
+            const whitePct = ((clamped + 6) / 12) * 100;
+            barWhite.style.height = whitePct + '%';
+
+            const abs = Math.abs(clamped).toFixed(1);
+            if (topLabel) topLabel.textContent = clamped < -0.1 ? '-' + abs : '';
+            if (botLabel) botLabel.textContent = clamped > 0.1 ? '+' + abs : (Math.abs(clamped) <= 0.1 ? '=' : '');
+        }
+
+        const _origHighlight = typeof highlightCurrentMove === 'function' ? highlightCurrentMove : null;
+        function highlightCurrentMove() {
+            // شريط أفقي
+            const bar = document.getElementById('moves-scroll-bar');
+            if (bar) {
+                bar.querySelectorAll('[data-idx]').forEach(c => {
+                    c.style.borderColor = 'transparent';
+                    c.style.background = parseInt(c.dataset.idx) % 2 === 0
+                        ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.25)';
+                });
+                const active = bar.querySelector(`[data-idx="${currentMoveIndex}"]`);
+                if (active) {
+                    active.style.borderColor = 'var(--accent-green)';
+                    active.style.background = 'rgba(74,185,100,0.18)';
+                    // تمرير أفقي تلقائي - يبقي النقلة مرئية دون تحريك الصفحة
+                    const barRect = bar.getBoundingClientRect();
+                    const chipRect = active.getBoundingClientRect();
+                    if (chipRect.left < barRect.left + 20) {
+                        bar.scrollLeft -= (barRect.left - chipRect.left + 40);
+                    } else if (chipRect.right > barRect.right - 20) {
+                        bar.scrollLeft += (chipRect.right - barRect.right + 40);
+                    }
+                }
+            }
+            // الجدول القديم للتوافق
+            const tbody = document.getElementById('moves-unified-body');
+            if (tbody) {
+                tbody.querySelectorAll('.move-cell').forEach(c => c.classList.remove('active-move'));
+                const active = tbody.querySelector(`.move-cell[data-idx="${currentMoveIndex}"]`);
+                if (active) active.classList.add('active-move');
+            }
+            // تحديث eval bar
+            const ev = evaluations && evaluations[currentMoveIndex];
+            updateEvalBar(ev !== undefined ? ev : 0);
+        }
+        window.highlightCurrentMove = highlightCurrentMove;
+
+        // إعادة التحليل
+        document.getElementById('reanalyze-btn')?.addEventListener('click', () => {
+            if (!currentGameData) return;
+            document.getElementById('results-sheet').classList.remove('active');
+            document.getElementById('results-overlay').classList.remove('active');
+            analyzeGame(currentGameData);
         });
 
         // استرجاع الجلسة عند التحميل
