@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة افتتاحيات الشطرنج | Chess Analyzer</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #272522;
+            --bg-secondary: #312e2b;
+            --bg-tertiary: #3d3935;
+            --text-primary: #e8e6e3;
+            --text-secondary: #aeaca8;
+            --accent-gold: #f0c14b;
+            --accent-green: #81b64c;
+            --accent-cyan: #1baca6;
+            --loss-red: #cc3333;
+            --favorite: #f87171;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .logo .accent {
+            color: var(--accent-gold);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(240, 193, 75, 0.2);
+        }
+        
+        .hero h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+        }
+        
+        .hero p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-cyan);
+        }
+        
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        
+        .quick-btn {
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .quick-btn:hover {
+            background: #505050;
+            border-color: var(--accent-gold);
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 14px 50px 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Opening List */
+        .openings-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .opening-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;           /* prevent long content pushing the card wider */
+            max-width: 100%;            /* never exceed container width */
+            word-break: break-word;     /* break very long words/URLs */
+        }
+        
+        .opening-card:hover {
+            border-color: rgba(240, 193, 75, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .opening-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .opening-title {
+            flex: 1;
+        }
+        
+        .opening-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
+        .opening-eco {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-gold);
+            color: #000;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.2s;
+            padding: 5px;
+            line-height: 1;
+        }
+        
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .favorite-btn.active {
+            color: var(--favorite);
+        }
+        
+        .opening-moves {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: normal;            /* allow wrapping instead of forcing a single long line */
+            overflow-wrap: anywhere;        /* break long tokens when needed */
+            word-break: break-word;         /* ensure very long strings don't stretch the layout */
+            max-width: 100%;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #90c45d;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: #505050;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Bottom Sheet */
+        .bottom-sheet-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .bottom-sheet-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-height: 90vh;
+            background: var(--bg-secondary);
+            border-radius: 20px 20px 0 0;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            overflow-y: auto;
+        }
+        
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+        
+        .sheet-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 1;
+        }
+        
+        .sheet-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sheet-content {
+            padding: 25px;
+        }
+        
+        .close-sheet {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .close-sheet:hover {
+            background: #505050;
+        }
+        
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.success {
+            border-left: 4px solid var(--accent-green);
+        }
+        
+        .toast.error {
+            border-left: 4px solid var(--loss-red);
+        }
+        
+        .toast.info {
+            border-left: 4px solid var(--accent-cyan);
+        }
+        
+        /* Loading */
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+        
+        .empty-title {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .empty-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* History */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 12px 15px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid transparent;
+        }
+        
+        .history-item:hover {
+            background: #505050;
+            border-color: var(--accent-gold);
+        }
+        
+        .history-url {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+        
+        .history-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 24px;
+            }
+            
+            .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .opening-card {
+                padding: 15px;
+            }
+            
+            .opening-name {
+                font-size: 16px;
+            }
+            
+            .opening-moves {
+                font-size: 12px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .header-actions .btn {
+                flex: 1;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            /* Fix bottom sheet on mobile */
+            .bottom-sheet {
+                max-height: 85vh;
+            }
+            
+            .sheet-content {
+                padding: 20px 15px;
+                padding-bottom: 30px;
+            }
+            
+            /* Better touch targets */
+            .quick-btn,
+            .stat-card,
+            .opening-card {
+                min-height: 44px;
+            }
+            
+            /* Prevent layout issues on load more */
+            .openings-grid {
+                min-height: 200px;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        .favCount {
+          width: 26px;
+          height: 26px;
+          background-color: var(--loss-red);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i data-lucide="crown" style="width: 32px; height: 32px; color: var(--accent-gold);"></i>
+                <h1><span class="accent">Chess</span> Analyzer</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="showFavorites()">
+                    <i data-lucide="heart" style="width: 16px; height: 16px;"></i> المفضلة
+                    <span id="favCount">0</span>
+                </button>
+                <button class="btn btn-secondary" onclick="showFilters()">
+                    <i data-lucide="filter" style="width: 16px; height: 16px;"></i>
+                    الفلاتر
+                </button>
+                <a href="ChessAnalyzer-Enhanced-Openings.html" class="btn btn-secondary" style="text-decoration: none;">
+                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    العودة
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-icon">
+                <i data-lucide="book-open" style="width: 40px; height: 40px; color: var(--accent-gold);"></i>
+            </div>
+            <h2>مكتبة افتتاحيات الشطرنج</h2>
+            <p>استعرض وابحث في آلاف الافتتاحيات من قواعد بيانات Lichess و TSV/JSON</p>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="section-title">
+                <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+                <span>تحميل سريع من Lichess</span>
+            </div>
+            <div class="quick-grid">
+                <button class="quick-btn" onclick="loadLichessFile('a')">
+                    <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+                    A.tsv
+                </button>
+                <button class="quick-btn" onclick="loadLichessFile('b')">
+                    <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+                    B.tsv
+                </button>
+                <button class="quick-btn" onclick="loadLichessFile('c')">
+                    <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+                    C.tsv
+                </button>
+                <button class="quick-btn" onclick="loadLichessFile('d')">
+                    <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+                    D.tsv
+                </button>
+                <button class="quick-btn" onclick="loadLichessFile('e')">
+                    <i data-lucide="file" style="width: 16px; height: 16px;"></i>
+                    E.tsv
+                </button>
+                <button class="quick-btn" onclick="showCustomUrl()">
+                    <i data-lucide="link" style="width: 16px; height: 16px;"></i>
+                    رابط مخصص
+                </button>
+            </div>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div id="stats-bar" class="stats-bar hidden">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="database" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">إجمالي الافتتاحيات</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="filter" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div class="stat-value" id="stat-filtered">0</div>
+                <div class="stat-label">بعد الفلترة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div class="stat-value" id="stat-displayed">0</div>
+                <div class="stat-label">المعروضة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="heart" style="width: 20px; height: 20px;"></i>
+                </div>
+                <div class="stat-value" id="stat-favorites">0</div>
+                <div class="stat-label">المفضلة</div>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن افتتاحية... (الاسم، ECO، النقلات)" oninput="debouncedFilter()">
+                <i data-lucide="search" class="search-icon" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div class="search-actions">
+                <button class="btn btn-secondary" onclick="clearSearch()">
+                    <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                    مسح البحث
+                </button>
+                <button class="btn btn-secondary" onclick="showFilters()">
+                    <i data-lucide="sliders" style="width: 16px; height: 16px;"></i>
+                    فلاتر متقدمة
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                    تطبيق
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading -->
+        <div id="loading" class="hidden">
+            <div class="loading-spinner"></div>
+        </div>
+        
+        <!-- Openings Grid -->
+        <div id="openingsList" class="openings-grid"></div>
+        
+        <!-- Load More -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="loadMoreBtn" class="btn btn-primary hidden" onclick="loadMore()">
+                <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+                تحميل المزيد
+            </button>
+        </div>
+    </div>
+    
+    <!-- Bottom Sheet: Custom URL -->
+    <div class="bottom-sheet-overlay" id="url-overlay"></div>
+    <div class="bottom-sheet" id="url-sheet">
+        <div class="sheet-header">
+            <div class="sheet-title">
+                <i data-lucide="link" style="width: 24px; height: 24px;"></i>
+                <span>تحميل من رابط مخصص</span>
+            </div>
+            <button class="close-sheet" onclick="closeSheet('url')">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+        </div>
+        <div class="sheet-content">
+            <div class="form-group">
+                <label class="form-label">رابط ملف TSV أو JSON</label>
+                <input type="url" id="customUrl" placeholder="https://...">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="loadFromCustomUrl()">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    تحميل وعرض
+                </button>
+                <button class="btn btn-secondary" onclick="downloadFileFromUrl()">
+                    <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                    حفظ الملف
+                </button>
+            </div>
+            
+            <!-- URL History -->
+            <div id="url-history-section">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <span class="form-label" style="margin: 0;">الروابط السابقة</span>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="clearUrlHistory()">
+                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                        مسح
+                    </button>
+                </div>
+                <div id="url-history-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Sheet: Filters -->
+    <div class="bottom-sheet-overlay" id="filters-overlay"></div>
+    <div class="bottom-sheet" id="filters-sheet">
+        <div class="sheet-header">
+            <div class="sheet-title">
+                <i data-lucide="filter" style="width: 24px; height: 24px;"></i>
+                <span>الفلاتر المتقدمة</span>
+            </div>
+            <button class="close-sheet" onclick="closeSheet('filters')">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+        </div>
+        <div class="sheet-content">
+            <div class="form-group">
+                <label class="form-label">البحث في</label>
+                <select id="searchType" onchange="debouncedFilter()">
+                    <option value="all">الكل</option>
+                    <option value="name">الاسم فقط</option>
+                    <option value="eco">ECO فقط</option>
+                    <option value="moves">النقلات فقط</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">نطاق ECO</label>
+                <input type="text" id="ecoRange" placeholder="مثال: A00-A99 أو B20" oninput="debouncedFilter()">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">الحد الأدنى لعدد النقلات</label>
+                <input type="number" id="minMoves" min="0" placeholder="0" oninput="debouncedFilter()">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">الحد الأقصى لعدد النقلات</label>
+                <input type="number" id="maxMoves" min="0" placeholder="20" oninput="debouncedFilter()">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">عدد النتائج لكل صفحة</label>
+                <input type="number" id="pageSize" value="30" min="10" max="100" step="10">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="strictOrder">
+                <label for="strictOrder">بحث دقيق (يبدأ بـ)</label>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="clearFilters()">
+                    <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+                    إعادة تعيين
+                </button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="applyFilters()">
+                    <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                    تطبيق
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+        
+        // State
+        let allOpenings = [];
+        let filteredOpenings = [];
+        let displayedCount = 0;
+        let favorites = new Set();
+        let pageSize = 30;
+        let urlHistory = [];
+        
+        const FAV_KEY = 'chess-openings-favorites';
+        const SESSION_KEY = 'chess-openings-session';
+        const HISTORY_KEY = 'chess-openings-url-history';
+        
+        // Debounce
+        let debounceTimer;
+        function debouncedFilter() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(filterOpenings, 300);
+        }
+        
+        // Toast
+        function showToast(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'check-circle',
+                error: 'x-circle',
+                info: 'info'
+            };
+            
+            toast.innerHTML = `
+                <i data-lucide="${icons[type]}" style="width: 20px; height: 20px;"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Sheet Management
+        function showCustomUrl() {
+            renderUrlHistory();
+            openSheet('url');
+        }
+        
+        function showFilters() {
+            openSheet('filters');
+        }
+        
+        function openSheet(name) {
+            document.getElementById(`${name}-overlay`).classList.add('active');
+            document.getElementById(`${name}-sheet`).classList.add('active');
+            lucide.createIcons();
+        }
+        
+        function closeSheet(name) {
+            document.getElementById(`${name}-overlay`).classList.remove('active');
+            document.getElementById(`${name}-sheet`).classList.remove('active');
+        }
+        
+        // Close on overlay click
+        document.querySelectorAll('.bottom-sheet-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function() {
+                this.classList.remove('active');
+                document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+                    sheet.classList.remove('active');
+                });
+            });
+        });
+        
+        // URL History Management
+        function loadUrlHistory() {
+            const saved = localStorage.getItem(HISTORY_KEY);
+            urlHistory = saved ? JSON.parse(saved) : [];
+        }
+        
+        function saveUrlToHistory(url) {
+            // Remove if exists
+            urlHistory = urlHistory.filter(item => item.url !== url);
+            
+            // Add to beginning
+            urlHistory.unshift({
+                url: url,
+                timestamp: new Date().toISOString(),
+                displayTime: new Date().toLocaleString('ar-DZ', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            });
+            
+            // Keep only 10 items
+            if (urlHistory.length > 10) {
+                urlHistory = urlHistory.slice(0, 10);
+            }
+            
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(urlHistory));
+        }
+        
+        function renderUrlHistory() {
+            const container = document.getElementById('url-history-list');
+            
+            if (urlHistory.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px 15px; color: var(--text-secondary); font-size: 13px;">
+                        <i data-lucide="history" style="width: 30px; height: 30px; margin: 0 auto 10px; display: block; opacity: 0.5;"></i>
+                        لا يوجد سجل للروابط
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            urlHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-url" title="${item.url}">${item.url}</div>
+                    <div class="history-time">${item.displayTime}</div>
+                `;
+                
+                div.onclick = () => {
+                    document.getElementById('customUrl').value = item.url;
+                };
+                
+                container.appendChild(div);
+            });
+            
+            lucide.createIcons();
+        }
+        
+        function clearUrlHistory() {
+            if (confirm('هل تريد مسح جميع الروابط المحفوظة؟')) {
+                urlHistory = [];
+                localStorage.removeItem(HISTORY_KEY);
+                renderUrlHistory();
+                showToast('success', 'تم مسح السجل');
+            }
+        }
+        
+        // Download File from URL
+        async function downloadFileFromUrl() {
+            const url = document.getElementById('customUrl').value.trim();
+            if (!url) {
+                showToast('error', 'الرجاء إدخال رابط');
+                return;
+            }
+            
+            showToast('info', 'جاري تحميل الملف...');
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const blob = await response.blob();
+                const filename = url.split('/').pop() || 'openings.tsv';
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                
+                showToast('success', `تم حفظ ${filename} في جهازك`);
+                saveUrlToHistory(url);
+                renderUrlHistory();
+                
+            } catch (error) {
+                showToast('error', `فشل التحميل: ${error.message}`);
+            }
+        }
+        
+        // Load Lichess File
+        async function loadLichessFile(letter) {
+            const url = `https://raw.githubusercontent.com/lichess-org/chess-openings/master/${letter}.tsv`;
+            await loadData(url);
+        }
+        
+        // Load from Custom URL
+        async function loadFromCustomUrl() {
+            const url = document.getElementById('customUrl').value.trim();
+            if (!url) {
+                showToast('error', 'الرجاء إدخال رابط');
+                return;
+            }
+            
+            closeSheet('url');
+            await loadData(url);
+            saveUrlToHistory(url);
+        }
+        
+        // Load Data
+        async function loadData(url) {
+            showToast('info', 'جاري التحميل...');
+            document.getElementById('loading').classList.remove('hidden');
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const text = await response.text();
+                
+                // Detect format
+                if (url.endsWith('.json') || text.trim().startsWith('[')) {
+                    parseJSON(text);
+                } else {
+                    parseTSV(text);
+                }
+                
+                showToast('success', `تم تحميل ${allOpenings.length.toLocaleString()} افتتاحية`);
+                updateStats();
+                filterOpenings();
+                
+            } catch (error) {
+                showToast('error', `فشل التحميل: ${error.message}`);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+        
+        // Parse TSV
+        function parseTSV(text) {
+            Papa.parse(text, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allOpenings = results.data.map((row, index) => ({
+                        id: index,
+                        eco: row.eco || '',
+                        name: row.name || '',
+                        pgn: row.pgn || row.moves || '',
+                        uci: row.uci || '',
+                        epd: row.epd || ''
+                    }));
+                }
+            });
+        }
+        
+        // Parse JSON
+        function parseJSON(text) {
+            try {
+                const data = JSON.parse(text);
+                allOpenings = data.map((item, index) => ({
+                    id: index,
+                    eco: item.eco || '',
+                    name: item.name || '',
+                    pgn: item.pgn || item.moves || '',
+                    uci: item.uci || '',
+                    epd: item.epd || ''
+                }));
+            } catch (error) {
+                showToast('error', 'فشل تحليل JSON');
+            }
+        }
+        
+        // Filter Openings
+        function filterOpenings() {
+            const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            const searchType = document.getElementById('searchType').value;
+            const ecoRange = document.getElementById('ecoRange').value.trim().toUpperCase();
+            const minMoves = parseInt(document.getElementById('minMoves').value) || 0;
+            const maxMoves = parseInt(document.getElementById('maxMoves').value) || Infinity;
+            const strictOrder = document.getElementById('strictOrder').checked;
+            
+            filteredOpenings = allOpenings.filter(opening => {
+                // Search filter
+                if (searchInput) {
+                    let searchField = '';
+                    if (searchType === 'all') {
+                        searchField = `${opening.name} ${opening.eco} ${opening.pgn}`.toLowerCase();
+                    } else if (searchType === 'name') {
+                        searchField = opening.name.toLowerCase();
+                    } else if (searchType === 'eco') {
+                        searchField = opening.eco.toLowerCase();
+                    } else if (searchType === 'moves') {
+                        searchField = opening.pgn.toLowerCase();
+                    }
+                    
+                    if (strictOrder) {
+                        if (!searchField.startsWith(searchInput)) return false;
+                    } else {
+                        if (!searchField.includes(searchInput)) return false;
+                    }
+                }
+                
+                // ECO Range filter
+                if (ecoRange) {
+                    if (ecoRange.includes('-')) {
+                        const [start, end] = ecoRange.split('-');
+                        if (opening.eco < start || opening.eco > end) return false;
+                    } else {
+                        if (!opening.eco.startsWith(ecoRange)) return false;
+                    }
+                }
+                
+                // Moves count filter
+                const movesCount = opening.pgn.split(/\s+/).filter(m => m.match(/^[a-h1-8]/)).length;
+                if (movesCount < minMoves || movesCount > maxMoves) return false;
+                
+                return true;
+            });
+            
+            displayOpenings(true); // true = reset display
+        }
+        
+        // Display Openings
+        function displayOpenings(reset = true) {
+            const container = document.getElementById('openingsList');
+            
+            if (reset) {
+                container.innerHTML = '';
+                displayedCount = 0;
+            }
+            
+            if (filteredOpenings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i data-lucide="search-x" style="width: 50px; height: 50px;"></i>
+                        </div>
+                        <div class="empty-title">لا توجد نتائج</div>
+                        <div class="empty-desc">جرب تعديل معايير البحث أو الفلاتر</div>
+                    </div>
+                `;
+                lucide.createIcons();
+                document.getElementById('loadMoreBtn').classList.add('hidden');
+                return;
+            }
+            
+            const end = Math.min(displayedCount + pageSize, filteredOpenings.length);
+            
+            // Create fragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            for (let i = displayedCount; i < end; i++) {
+                const opening = filteredOpenings[i];
+                const card = createOpeningCard(opening);
+                fragment.appendChild(card);
+            }
+            
+            container.appendChild(fragment);
+            displayedCount = end;
+            
+            // Update button visibility
+            if (displayedCount >= filteredOpenings.length) {
+                document.getElementById('loadMoreBtn').classList.add('hidden');
+            } else {
+                document.getElementById('loadMoreBtn').classList.remove('hidden');
+            }
+            
+            // Update icons
+            lucide.createIcons();
+            
+            // Update stats
+            updateStats();
+        }
+        
+        // Create Opening Card
+        function createOpeningCard(opening) {
+            const card = document.createElement('div');
+            card.className = 'opening-card';
+            
+            const isFav = favorites.has(opening.id.toString());
+            
+            card.innerHTML = `
+                <div class="opening-header">
+                    <div class="opening-title">
+                        <div class="opening-name">${opening.name}</div>
+                        <span class="opening-eco">${opening.eco}</span>
+                    </div>
+                    <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${opening.id})" data-fav-id="${opening.id}">
+                        ♥
+                    </button>
+                </div>
+                <div class="opening-moves">${opening.pgn || 'لا توجد نقلات'}</div>
+            `;
+            
+            return card;
+        }
+        
+        // Load More
+        function loadMore() {
+            pageSize = parseInt(document.getElementById('pageSize').value) || 30;
+            displayOpenings(false); // false = don't reset, append only
+        }
+        
+        // Update Stats
+        function updateStats() {
+            document.getElementById('stat-total').textContent = allOpenings.length.toLocaleString();
+            document.getElementById('stat-filtered').textContent = filteredOpenings.length.toLocaleString();
+            document.getElementById('stat-displayed').textContent = displayedCount.toLocaleString();
+            document.getElementById('stat-favorites').textContent = favorites.size;
+            document.getElementById('favCount').textContent = favorites.size;
+            
+            if (allOpenings.length > 0) {
+                document.getElementById('stats-bar').classList.remove('hidden');
+            }
+        }
+        
+        // Favorites
+        function loadFavorites() {
+            const saved = localStorage.getItem(FAV_KEY);
+            favorites = new Set(saved ? JSON.parse(saved) : []);
+            updateStats();
+        }
+        
+        function toggleFavorite(id) {
+            const key = id.toString();
+            if (favorites.has(key)) {
+                favorites.delete(key);
+                showToast('info', 'تم الإزالة من المفضلة');
+            } else {
+                favorites.add(key);
+                showToast('success', 'تمت الإضافة للمفضلة');
+            }
+            
+            localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
+            
+            // Update button
+            const btn = document.querySelector(`[data-fav-id="${id}"]`);
+            if (btn) {
+                btn.classList.toggle('active');
+            }
+            
+            updateStats();
+        }
+        
+        function showFavorites() {
+            if (favorites.size === 0) {
+                showToast('info', 'لا توجد افتتاحيات مفضلة');
+                return;
+            }
+            
+            filteredOpenings = allOpenings.filter(o => favorites.has(o.id.toString()));
+            displayOpenings(true); // true = reset display
+            showToast('info', `عرض ${favorites.size} افتتاحية مفضلة`);
+        }
+        
+        // Clear
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterOpenings();
+            showToast('info', 'تم مسح البحث');
+        }
+        
+        function clearFilters() {
+            document.getElementById('searchType').value = 'all';
+            document.getElementById('ecoRange').value = '';
+            document.getElementById('minMoves').value = '';
+            document.getElementById('maxMoves').value = '';
+            document.getElementById('strictOrder').checked = false;
+            filterOpenings();
+            showToast('info', 'تم إعادة تعيين الفلاتر');
+        }
+        
+        function applyFilters() {
+            filterOpenings();
+            closeSheet('filters');
+            showToast('success', 'تم تطبيق الفلاتر');
+        }
+        
+        // Initialize
+        loadFavorites();
+        loadUrlHistory();
+    </script>
+</body>
+</html>
