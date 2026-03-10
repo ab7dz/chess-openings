@@ -109,7 +109,7 @@
 .indicator-good, .indicator-inaccuracy, .indicator-miss, .indicator-mistake, 
 .indicator-blunder, .indicator-book, .icon-brilliant, .icon-great, .icon-best, .icon-excellent, 
 .icon-good, .icon-inaccuracy, .icon-miss, .icon-mistake, 
-.icon-blunder, .icon-book {
+.icon-blunder, .icon-book , .icon-game{
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -127,7 +127,9 @@
     line-height: 0;
     transition: transform 0.1s ease;
 }
-
+.icon-game, .img-game {
+  border-radius: 5px!important;
+}
 /* الألوان الخاصة بكل تقييم */
 .indicator-brilliant, .icon-brilliant { background: #1baca6; color: white; }
 .indicator-great, .icon-great { background: #4b819d; color: white; }
@@ -789,6 +791,17 @@
         .depth-icon { font-size: 1.4rem; min-width: 2rem; text-align: center; }
         .depth-label { font-weight: 700; font-size: 0.9rem; }
         .depth-desc  { font-size: 0.72rem; color: var(--text-secondary); }
+        /* sub-options for auto mode */
+        #auto-sub-options {
+            padding: 6px 4px 4px;
+            animation: fadeIn 0.15s ease;
+        }
+        .depth-sub {
+            border-radius: 10px !important;
+            border-width: 1px !important;
+        }
+        .depth-sub .depth-icon { font-size: 1rem; min-width: 1.5rem; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
 
         /* إعدادات وضع سوبر */
         #super-settings {
@@ -1018,94 +1031,102 @@
 <body>
     
     <header class="sticky top-0 z-50" style="background: var(--bg-secondary); border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="container mx-auto px-4 py-3">
+            <!-- صف 1: اللوجو + الافتتاحيات + المحفوظات +  -->
+            <div class="flex items-center justify-between gap-3 mb-3">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="crown" class="w-8 h-8" style="color: var(--accent-gold);"></i>
-                    <h1 class="text-2xl font-bold">
+                    <i data-lucide="crown" class="w-7 h-7" style="color: var(--accent-gold);"></i>
+                    <h1 class="text-xl font-bold">
                         <span style="color: var(--accent-gold);">Chess</span> Analyzer
                     </h1>
                 </div>
-                
-                <div class="flex gap-3 flex-1 max-w-2xl">
-                    <div class="flex-1 relative">
-                        <input 
-                            type="text" 
-                            id="username-input" 
-                            placeholder="أدخل اسم المستخدم على Chess.com"
-                            class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:border-2 transition-all text-right"
-                            style="background: var(--bg-tertiary); border-color: rgba(255,255,255,0.1); color: var(--text-primary);"
-                        />
-                    </div>
-                    <button id="search-btn" class="btn btn-primary">
-                        <i data-lucide="search" class="w-5 h-5"></i>
-                        بحث
+                <div class="flex items-center gap-2">
+                    <button id="openings-library-btn" class="btn btn-secondary" title="مكتبة الافتتاحيات" onclick="window.open('Opening-Library.html','_blank')">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        مكتبة
                     </button>
+                    <button id="saved-analyses-btn" class="btn btn-secondary" title="المحفوظات">
+                        <i data-lucide="archive" class="w-4 h-4"></i>
+                        محفظة
+                    </button>
+                   
                 </div>
-                
-                <button id="saved-analyses-btn" class="btn btn-secondary">
-                    <i data-lucide="archive" class="w-5 h-5"></i>
-                    المحفوظات
-                </button>
-                
-                <button id="openings-library-btn" class="btn btn-secondary" title="مكتبة الافتتاحيات">
-                    <i data-lucide="book-open" class="w-5 h-5"></i>
-                    الافتتاحيات
-                </button>
-                
-                <button id="opening-log-btn" class="btn btn-secondary" title="سجل الأحداث">
-                    <i data-lucide="terminal" class="w-5 h-5"></i>
-                    <span style="font-size:0.75rem;">سجل</span>
-                    <span class="log-badge" id="log-badge" style="display:none;">0</span>
-                </button>
-                
-                <button id="search-games-btn" class="btn btn-secondary hidden" title="بحث في المباريات">
-                    <i data-lucide="filter" class="w-5 h-5"></i>
+            </div>
+            <!-- صف 2: حقل البحث + زر البحث -->
+            <div class="flex gap-3">
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="username-input" 
+                        placeholder="أدخل اسم المستخدم على Chess.com"
+                        class="w-full px-4 py-3 rounded-xl border focus:outline-none transition-all text-right"
+                        style="background: var(--bg-tertiary); border-color: rgba(255,255,255,0.12); color: var(--text-primary); font-size:1rem;"
+                    />
+                </div>
+                <button id="search-btn" class="btn btn-primary px-5">
+                    <i data-lucide="search" class="w-5 h-5"></i>
                     بحث
                 </button>
+
             </div>
         </div>
     </header>
     
     <main class="container mx-auto px-4 py-8">
         
-        <div id="player-card" class="hidden rounded-xl p-6 mb-8 shadow-xl" style="background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.05);">
-            <div class="flex items-center gap-6 flex-wrap">
-                <img id="player-avatar" src="" alt="Player Avatar" class="w-24 h-24 rounded-full" style="border: 4px solid var(--accent-gold);">
-                <div class="flex-1">
-                    <h2 id="player-name" class="text-3xl font-bold mb-2"></h2>
-                    <p id="player-username" class="text-lg mb-3" style="color: var(--text-secondary);"></p>
-                    <div id="player-ratings" class="flex gap-4 flex-wrap"></div>
-                </div>
-            </div>
+      <div id="player-card" class="hidden rounded-xl p-6 mb-8 shadow-xl" style="background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.05);">
+    <div class="flex items-center gap-6 flex-wrap">
+        <img id="player-avatar" src="" alt="Player Avatar" class="w-20 h-20 img-game" style="border: 4px solid var(--accent-gold);">
+        
+        <div class="flex flex-col">
+            <h2 id="player-name" class="text-2xl font-bold mb-0"></h2>
+            <p id="player-username" class="text-lg" style="color: var(--text-secondary);"></p>
         </div>
         
+        <div class="flex-1">
+            <div id="player-ratings" class="flex gap-4 flex-wrap"></div>
+        </div>
+    </div>
+</div>
+        
         <div id="games-container" class="hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold flex items-center gap-2">
-                    <i data-lucide="gamepad-2" class="w-6 h-6" style="color: var(--accent-gold);"></i>
+            <!-- عنوان + فلتر + سجل -->
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i data-lucide="gamepad-2" class="w-5 h-5" style="color: var(--accent-gold);"></i>
                     المباريات الأخيرة
                     <span id="new-games-badge" class="hidden" style="
-                        font-size: 12px;
-                        padding: 2px 8px;
-                        background: var(--accent-green);
-                        color: white;
-                        border-radius: 12px;
-                        font-weight: 600;
-                    ">جديد!</span>
+                        font-size: 11px; padding: 2px 8px;
+                        background: var(--accent-green); color: white;
+                        border-radius: 12px; font-weight: 600;">جديد!</span>
                 </h2>
                 <div class="flex gap-2">
-                    <button id="refresh-games-btn" class="btn btn-primary text-sm" style="display: none;">
-                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        تحديث
+                    <button id="search-games-btn" class="btn btn-secondary text-sm" title="فلاتر البحث">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
+                        فلتر
                     </button>
-                    <button id="load-more-btn" class="btn btn-secondary text-sm">
-                        تحميل المزيد
+                    <button id="opening-log-btn" class="btn btn-secondary text-sm" title="سجل الأحداث">
+                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                        سجل
+                        <span class="log-badge" id="log-badge-2" style="display:none;">0</span>
                     </button>
+                   
                 </div>
             </div>
             
             <div id="games-list"></div>
+
+            <!-- أزرار التحديث وتحميل المزيد أسفل القائمة -->
+            <div class="flex gap-3 mt-4">
+                <button id="refresh-games-btn" class="btn btn-primary text-sm flex-1" style="display: none;">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    تحديث
+                </button>
+                <button id="load-more-btn" class="btn btn-secondary text-sm flex-1">
+                    <i data-lucide="chevrons-down" class="w-4 h-4"></i>
+                    تحميل المزيد
+                </button>
+            </div>
         </div>
         
         <div id="loading" class="hidden text-center py-20">
@@ -1124,27 +1145,40 @@
             </div>
 
             <div id="options-depth-selector">
+                <!-- فوري -->
                 <div class="depth-option" data-depth="instant">
                     <span class="depth-icon">🚀</span>
-                    <div><div class="depth-label">فوري</div><div class="depth-desc">Simple Eval - ثوانٍ</div></div>
+                    <div><div class="depth-label">فوري</div><div class="depth-desc">Simple Eval · ثوانٍ</div></div>
                 </div>
-                <div class="depth-option selected" data-depth="fast">
+                <!-- تلقائي = SF10 -->
+                <div class="depth-option selected" data-depth="auto">
                     <span class="depth-icon">⚡</span>
-                    <div><div class="depth-label">سريع</div><div class="depth-desc">Stockfish 300ms/نقلة</div></div>
+                    <div>
+                        <div class="depth-label">تلقائي</div>
+                        <div class="depth-desc">Stockfish 10 · اختر السرعة</div>
+                    </div>
                 </div>
-                <div class="depth-option" data-depth="normal">
-                    <span class="depth-icon">⚖️</span>
-                    <div><div class="depth-label">متوازن</div><div class="depth-desc">Stockfish 800ms/نقلة</div></div>
+                <!-- sub-options لـ تلقائي -->
+                <div id="auto-sub-options" style="display:flex; gap:8px; padding: 6px 0 2px 0;">
+                    <div class="depth-option depth-sub selected" data-depth="fast" style="flex:1; padding:10px 8px;">
+                        <span class="depth-icon" style="font-size:1rem;">⚡</span>
+                        <div><div class="depth-label" style="font-size:0.85rem;">سريع</div><div class="depth-desc">300ms</div></div>
+                    </div>
+                    <div class="depth-option depth-sub" data-depth="normal" style="flex:1; padding:10px 8px;">
+                        <span class="depth-icon" style="font-size:1rem;">⚖️</span>
+                        <div><div class="depth-label" style="font-size:0.85rem;">متوازن</div><div class="depth-desc">800ms</div></div>
+                    </div>
+                    <div class="depth-option depth-sub" data-depth="deep" style="flex:1; padding:10px 8px;">
+                        <span class="depth-icon" style="font-size:1rem;">🔬</span>
+                        <div><div class="depth-label" style="font-size:0.85rem;">عميق</div><div class="depth-desc">2000ms</div></div>
+                    </div>
                 </div>
-                <div class="depth-option" data-depth="deep">
-                    <span class="depth-icon">🔬</span>
-                    <div><div class="depth-label">عميق</div><div class="depth-desc">Stockfish 2000ms/نقلة</div></div>
-                </div>
+                <!-- سوبر -->
                 <div class="depth-option" data-depth="super" style="border:1px solid rgba(188,140,255,0.3); background:linear-gradient(135deg,rgba(188,140,255,0.08),rgba(99,102,241,0.08));">
                     <span class="depth-icon">🧠</span>
                     <div>
                         <div class="depth-label" style="color:#bc8cff;">سوبر</div>
-                        <div class="depth-desc">Stockfish 18 · depth 20</div>
+                        <div class="depth-desc">Stockfish 18 · الاذكى والاحسن</div>
                     </div>
                 </div>
             </div>
@@ -2035,198 +2069,120 @@
         let openingInfo = null;
         let moveClassifications = [];
         
-        const openingsDatabase = {
-            // === e4 openings ===
-            "e4": { name: "King's Pawn Game", eco: "B00" },
-            "e4 e5": { name: "King's Pawn Game", eco: "C20" },
-            "e4 e5 Nf3": { name: "King's Knight Opening", eco: "C40" },
-            "e4 e5 Nf3 Nc6": { name: "Three Knights / Spanish Setup", eco: "C40" },
-            "e4 e5 Nf3 Nc6 Bc4": { name: "Italian Game", eco: "C50" },
-            "e4 e5 Nf3 Nc6 Bc4 Bc5": { name: "Giuoco Piano", eco: "C50" },
-            "e4 e5 Nf3 Nc6 Bc4 Nf6": { name: "Two Knights Defense", eco: "C55" },
-            "e4 e5 Nf3 Nc6 Bb5": { name: "Ruy Lopez", eco: "C60" },
-            "e4 e5 Nf3 Nc6 Bb5 a6": { name: "Ruy Lopez, Morphy Defense", eco: "C60" },
-            "e4 e5 Nf3 Nc6 Bb5 Nf6": { name: "Ruy Lopez, Berlin Defense", eco: "C65" },
-            "e4 e5 Nf3 Nf6": { name: "Petrov's Defense", eco: "C42" },
-            "e4 e5 Nf3 f5": { name: "Latvian Gambit", eco: "C40" },
-            "e4 e5 f4": { name: "King's Gambit", eco: "C30" },
-            "e4 e5 f4 exf4": { name: "King's Gambit Accepted", eco: "C33" },
-            "e4 e5 f4 Bc5": { name: "King's Gambit Declined", eco: "C30" },
-            "e4 e5 Nc3": { name: "Vienna Game", eco: "C25" },
-            "e4 e5 Bc4": { name: "Bishop's Opening", eco: "C23" },
-            "e4 e5 d4": { name: "Center Game", eco: "C21" },
-            "e4 e5 Nf3 Nc6 d4": { name: "Scotch Game", eco: "C44" },
-            "e4 e5 Nf3 Nc6 d4 exd4": { name: "Scotch Game", eco: "C44" },
-            "e4 e5 Nf3 Nc6 d4 exd4 Nxd4": { name: "Scotch Game", eco: "C45" },
-            // Sicilian
-            "e4 c5": { name: "Sicilian Defense", eco: "B20" },
-            "e4 c5 Nf3": { name: "Sicilian Defense, Open", eco: "B20" },
-            "e4 c5 Nf3 d6": { name: "Sicilian Defense, Najdorf Setup", eco: "B70" },
-            "e4 c5 Nf3 d6 d4": { name: "Sicilian Defense, Open", eco: "B70" },
-            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6": { name: "Sicilian Najdorf", eco: "B90" },
-            "e4 c5 Nf3 Nc6": { name: "Sicilian Defense, Old Sicilian", eco: "B30" },
-            "e4 c5 Nf3 Nc6 d4": { name: "Sicilian Defense, Open", eco: "B30" },
-            "e4 c5 Nf3 e6": { name: "Sicilian Defense, French Variation", eco: "B40" },
-            "e4 c5 Nc3": { name: "Sicilian Defense, Closed", eco: "B23" },
-            "e4 c5 c3": { name: "Sicilian Defense, Alapin Variation", eco: "B22" },
-            "e4 c5 d4": { name: "Sicilian Defense, Smith-Morra Gambit", eco: "B21" },
-            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6": { name: "Sicilian Dragon", eco: "B70" },
-            "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6": { name: "Sicilian Scheveningen", eco: "B80" },
-            // French
-            "e4 e6": { name: "French Defense", eco: "C00" },
-            "e4 e6 d4": { name: "French Defense", eco: "C00" },
-            "e4 e6 d4 d5": { name: "French Defense", eco: "C00" },
-            "e4 e6 d4 d5 Nc3": { name: "French Defense, Classical", eco: "C10" },
-            "e4 e6 d4 d5 Nd2": { name: "French Defense, Tarrasch", eco: "C03" },
-            "e4 e6 d4 d5 e5": { name: "French Defense, Advance Variation", eco: "C02" },
-            "e4 e6 d4 d5 exd5": { name: "French Defense, Exchange Variation", eco: "C01" },
-            "e4 e6 d4 d5 Nc3 Nf6": { name: "French Defense, Classical", eco: "C14" },
-            "e4 e6 d4 d5 Nc3 Bb4": { name: "French Defense, Winawer Variation", eco: "C15" },
-            // Caro-Kann
-            "e4 c6": { name: "Caro-Kann Defense", eco: "B10" },
-            "e4 c6 d4": { name: "Caro-Kann Defense", eco: "B12" },
-            "e4 c6 d4 d5": { name: "Caro-Kann Defense", eco: "B13" },
-            "e4 c6 d4 d5 Nc3": { name: "Caro-Kann Defense, Classical", eco: "B18" },
-            "e4 c6 d4 d5 exd5": { name: "Caro-Kann Defense, Exchange", eco: "B13" },
-            "e4 c6 d4 d5 e5": { name: "Caro-Kann Defense, Advance", eco: "B12" },
-            // Pirc / Modern
-            "e4 d6": { name: "Pirc Defense", eco: "B07" },
-            "e4 d6 d4 Nf6": { name: "Pirc Defense", eco: "B07" },
-            "e4 d6 d4 Nf6 Nc3 g6": { name: "Pirc Defense, Classical", eco: "B08" },
-            "e4 g6": { name: "Modern Defense", eco: "B06" },
-            "e4 g6 d4 Bg7": { name: "Modern Defense", eco: "B06" },
-            // Scandinavian
-            "e4 d5": { name: "Scandinavian Defense", eco: "B01" },
-            "e4 d5 exd5": { name: "Scandinavian Defense", eco: "B01" },
-            "e4 d5 exd5 Qxd5": { name: "Scandinavian Defense, Mieses-Kotrč", eco: "B01" },
-            "e4 d5 exd5 Nf6": { name: "Scandinavian Defense, Icelandic Gambit", eco: "B01" },
-            // Alekhine
-            "e4 Nf6": { name: "Alekhine's Defense", eco: "B02" },
-            "e4 Nf6 e5 Nd5": { name: "Alekhine's Defense, Modern Variation", eco: "B04" },
-            // === d4 openings ===
-            "d4": { name: "Queen's Pawn Game", eco: "D00" },
-            "d4 d5": { name: "Queen's Pawn Game", eco: "D00" },
-            "d4 d5 c4": { name: "Queen's Gambit", eco: "D06" },
-            "d4 d5 c4 e6": { name: "Queen's Gambit Declined", eco: "D30" },
-            "d4 d5 c4 e6 Nc3": { name: "Queen's Gambit Declined", eco: "D31" },
-            "d4 d5 c4 e6 Nc3 Nf6": { name: "Queen's Gambit Declined", eco: "D37" },
-            "d4 d5 c4 e6 Nf3 Nf6 Nc3 Be7": { name: "Queen's Gambit Declined, Orthodox", eco: "D60" },
-            "d4 d5 c4 dxc4": { name: "Queen's Gambit Accepted", eco: "D20" },
-            "d4 d5 c4 dxc4 Nf3": { name: "Queen's Gambit Accepted", eco: "D20" },
-            "d4 d5 c4 c6": { name: "Slav Defense", eco: "D10" },
-            "d4 d5 c4 c6 Nf3": { name: "Slav Defense", eco: "D11" },
-            "d4 d5 c4 c6 Nc3": { name: "Slav Defense", eco: "D12" },
-            "d4 d5 Bf4": { name: "London System", eco: "D02" },
-            "d4 d5 Nf3": { name: "Queen's Pawn, London-like", eco: "D02" },
-            "d4 Nf6 Bf4": { name: "London System", eco: "A46" },
-            "d4 Nf6 Nf3": { name: "Indian Game", eco: "A46" },
-            "d4 Nf6 c4": { name: "Indian Game", eco: "E00" },
-            "d4 Nf6 c4 g6": { name: "King's Indian Defense", eco: "E60" },
-            "d4 Nf6 c4 g6 Nc3": { name: "King's Indian Defense", eco: "E61" },
-            "d4 Nf6 c4 g6 Nc3 Bg7": { name: "King's Indian Defense", eco: "E70" },
-            "d4 Nf6 c4 g6 Nc3 Bg7 e4": { name: "King's Indian Defense, Main Line", eco: "E90" },
-            "d4 Nf6 c4 e6": { name: "Nimzo/Queen's Indian Setup", eco: "E00" },
-            "d4 Nf6 c4 e6 Nc3 Bb4": { name: "Nimzo-Indian Defense", eco: "E20" },
-            "d4 Nf6 c4 e6 Nf3 b6": { name: "Queen's Indian Defense", eco: "E12" },
-            "d4 Nf6 c4 c5": { name: "Benoni Defense", eco: "A56" },
-            "d4 Nf6 c4 c5 d5": { name: "Modern Benoni", eco: "A60" },
-            "d4 Nf6 c4 d6": { name: "Old Indian Defense", eco: "A53" },
-            "d4 e6": { name: "Queen's Pawn, French-like", eco: "A40" },
-            "d4 f5": { name: "Dutch Defense", eco: "A80" },
-            "d4 f5 c4": { name: "Dutch Defense", eco: "A85" },
-            "d4 f5 Nf3": { name: "Dutch Defense, Hopton Attack", eco: "A80" },
-            "d4 g6": { name: "Modern Defense", eco: "A40" },
-            "d4 c5": { name: "Benoni Defense", eco: "A43" },
-            "d4 d6": { name: "Wade Defense", eco: "A41" },
-            // === c4 openings (English) ===
-            "c4": { name: "English Opening", eco: "A10" },
-            "c4 e5": { name: "English Opening, Reversed Sicilian", eco: "A20" },
-            "c4 e5 Nf3": { name: "English Opening, King's English", eco: "A20" },
-            "c4 Nf6": { name: "English Opening, Anglo-Indian", eco: "A15" },
-            "c4 c5": { name: "English Symmetrical", eco: "A30" },
-            "c4 c6": { name: "English Opening, Caro-Kann Defensive System", eco: "A11" },
-            "c4 g6": { name: "English Opening, King's Indian formation", eco: "A16" },
-            "c4 e6": { name: "English Opening, Agincourt Defense", eco: "A13" },
-            "c4 d5": { name: "English Opening, Anglo-Scandinavian", eco: "A10" },
-            // === Nf3 openings (Réti) ===
-            "Nf3": { name: "Réti Opening", eco: "A04" },
-            "Nf3 d5": { name: "Réti Opening", eco: "A09" },
-            "Nf3 d5 c4": { name: "Réti Opening, Gambit", eco: "A09" },
-            "Nf3 Nf6": { name: "Réti Opening", eco: "A05" },
-            "Nf3 f5": { name: "Réti Opening vs Dutch", eco: "A04" },
-            // === Flank openings ===
-            "b3": { name: "Larsen's Opening", eco: "A01" },
-            "b3 e5": { name: "Larsen's Opening", eco: "A01" },
-            "b3 d5": { name: "Larsen's Opening", eco: "A01" },
-            "b4": { name: "Polish Opening (Orangutan)", eco: "A00" },
-            "b4 e5": { name: "Polish Opening", eco: "A00" },
-            "f4": { name: "Bird's Opening", eco: "A02" },
-            "f4 d5": { name: "Bird's Opening", eco: "A03" },
-            "f4 e5": { name: "Bird's Opening, From's Gambit", eco: "A02" },
-            "g3": { name: "King's Fianchetto Opening", eco: "A00" },
-            "g4": { name: "Grob's Attack", eco: "A00" },
-            "a3": { name: "Anderssen's Opening", eco: "A00" },
-            "Nc3": { name: "Van Geet Opening", eco: "A00" },
-            "Nc3 d5": { name: "Van Geet Opening", eco: "A00" },
-        };
-        
-        // ==================== التعرف على الافتتاحيات ====================
-        
-        // نظام تتبع تفصيلي
-        let openingDetectionLog = {
-            attempts: [],
-            lastDetection: null,
-            statistics: {
-                lichessCloud: { success: 0, failed: 0 },
-                lichessTSV: { success: 0, failed: 0 },
-                github: { success: 0, failed: 0 },
-                local: { success: 0, failed: 0 }
-            }
-        };
-        
+        // ==================== نظام الافتتاحيات (من PGN مباشرة) ====================
+        // يقرأ ECO واسم الافتتاحية مباشرة من PGN المجلوب من chess.com
+        // لا حاجة لقاعدة بيانات محلية
 
-        function detectOpeningLocal(moves) {
-            if (!moves || moves.length < 1) return null;
-            
-            // Try longest prefixes first down to a single move
-            for (let i = Math.min(moves.length, 10); i >= 1; i--) {
-                const moveSequence = moves.slice(0, i).map(m => m.san).join(' ');
-                if (openingsDatabase[moveSequence]) {
-                    const result = {
-                        ...openingsDatabase[moveSequence],
-                        moves: moveSequence,
-                        length: i,
-                        source: 'local'
-                    };
-                    
+        function extractOpeningFromPGN(pgnText) {
+            if (!pgnText) return null;
+
+            const ecoMatch    = pgnText.match(/\[ECO\s+"([^"]+)"\]/);
+            const ecoUrlMatch = pgnText.match(/\[ECOUrl\s+"([^"]+)"\]/);
+            const eco = ecoMatch ? ecoMatch[1] : null;
+
+            let name = null, bookLength = 0, movesStr = '';
+
+            if (ecoUrlMatch) {
+                const urlPath = (ecoUrlMatch[1].split('/openings/')[1] || '');
+
+                // ── استخرج بداية النقلات ────────────────────────────────
+                // نبحث عن أول token يبدأ بـ N.Letter أو N...Letter (N رقم)
+                const parts = urlPath.split('-');
+                let nameEndIdx = parts.length;
+                for (let i = 0; i < parts.length; i++) {
+                    if (/^\d+\.[A-Za-z]/.test(parts[i]) || /^\d+\.\.\.[A-Za-z]/.test(parts[i])) {
+                        nameEndIdx = i; break;
+                    }
+                }
+
+                // ── الاسم ───────────────────────────────────────────────
+                name = parts.slice(0, nameEndIdx)
+                            .join(' ')
+                            .replace(/\s*\.\.\.\d+$/, '')  // أزل "...N" إذا وُجد
+                            .replace(/\b\w/g, c => c.toUpperCase())
+                            .trim();
+
+                // ── النقلات ─────────────────────────────────────────────
+                // ابحث في الجزء الكامل عن كل أنماط النقلات
+                const movesPart = parts.slice(nameEndIdx).join('-');
+                if (movesPart) {
+                    const parsedMoves = [];
+                    let lastNum = 0;
+
+                    // استخرج كل النقلات المرقّمة أولاً (N.move أو N...move)
+                    const allMoves = [...movesPart.matchAll(/(\d+)(\.{1,3})([A-Za-z0-9O\+\#x\=]+)/g)];
+                    let prevIndex = 0;
+
+                    for (const m of allMoves) {
+                        // ما بين هذا والسابق → نقلة أسود منفردة
+                        const gap = movesPart.slice(prevIndex, m.index);
+                        gap.split('-').filter(t => /^[A-Za-z][A-Za-z0-9\+\#x\=O]*$/.test(t))
+                           .forEach(mv => parsedMoves.push({ side:'b', num:lastNum, mv }));
+
+                        const side = m[2].length > 1 ? 'b' : 'w';
+                        lastNum = parseInt(m[1]);
+                        parsedMoves.push({ side, num: lastNum, mv: m[3] });
+                        prevIndex = m.index + m[0].length;
+                    }
+
+                    // ما بعد آخر نقلة مرقّمة
+                    movesPart.slice(prevIndex).split('-')
+                             .filter(t => /^[A-Za-z][A-Za-z0-9\+\#x\=O]*$/.test(t))
+                             .forEach(mv => parsedMoves.push({ side:'b', num:lastNum, mv }));
+
+                    bookLength = parsedMoves.length;
+                    // إذا بدأت بنقلة أسود → الأبيض لعب نقلة ضمنية
+                    if (parsedMoves.length > 0 && parsedMoves[0].side === 'b') bookLength++;
+
+                    movesStr = parsedMoves.map(m =>
+                        m.side === 'w' ? `${m.num}. ${m.mv}` : m.mv
+                    ).join(' ');
+                }
+
+                if (!name || name.length < 2) name = 'افتتاح مفتوح';
+            }
+
+            if (!eco && !name) return null;
+
+            // ── Fallback: إذا لم يُوجد نقلات في الرابط → نقلة الأبيض الأولى من PGN ──
+            // chess.com يضع مثل "Birds-Opening" بدون نقلات = نقلة واحدة فقط (f4)
+            // نستخرج الحركة الأولى من نص PGN لتصنيفها كـ "كتاب"
+            if (bookLength === 0) {
+                const firstMoveMatch = pgnText.match(/\n\n1\.\s+(\S+)/);
+                if (firstMoveMatch) {
+                    movesStr = `1. ${firstMoveMatch[1]}`;
+                    bookLength = 1;  // على الأقل نقلة الأبيض الأولى
+                }
+            }
+
+            return {
+                name:   name || 'افتتاح مفتوح',
+                eco:    eco  || '',
+                moves:  movesStr,
+                length: bookLength,
+                source: 'chess.com',
+                ecoUrl: ecoUrlMatch ? ecoUrlMatch[1] : null
+            };
+        }
+
+        function detectOpening(moves) {
+            // استخرج من PGN مباشرة إذا كان متاحاً
+            if (currentGameData && currentGameData.pgn) {
+                const result = extractOpeningFromPGN(currentGameData.pgn);
+                if (result) {
+                    appLog(`✅ ${result.name} (${result.eco}) — chess.com`, 'success');
+                    updateLogBadge();
                     return result;
                 }
             }
-            
-            return null;
-        }
-        
-        // ==================== كشف الافتتاحية (محلي فقط) ====================
-
-        function detectOpening(moves) {
-            appLog('🔍 كشف الافتتاحية...');
-            const result = detectOpeningLocal(moves);
-            if (result) {
-                appLog(`✅ ${result.name} (${result.eco})`, 'success');
-            } else {
-                appLog('⚠️ الافتتاحية غير معروفة', 'warn');
-            }
+            // fallback: افتتاح مفتوح
+            appLog('ℹ️ لا توجد بيانات افتتاحية', 'info');
             updateLogBadge();
-            return result;
+            return { name: 'افتتاح مفتوح', eco: '', moves: '', length: 0, source: 'fallback' };
         }
 
 
-        
-
-
-
-       
-        // ==================== حفظ/استرجاع الجلسة ====================
+                // ==================== حفظ/استرجاع الجلسة ====================
         async function saveSession() {
             await set('chess_session', sessionData);
         }
@@ -2476,7 +2432,7 @@
                                 <i data-lucide="${type.icon}" class="w-4 h-4" style="color: var(--accent-gold);"></i>
                                 <span class="text-sm" style="color: var(--text-secondary);">${type.label}</span>
                             </div>
-                            <div class="text-xl font-bold mt-1">${rating}</div>
+                            <div class="text-xl font-bold mt-1" style="font-size: 18px;">${rating}</div>
                         </div>
                     `;
                 }
@@ -2494,7 +2450,9 @@
             const analyzedGames = await getAnalyzedGames();
             list.innerHTML = '';
             
-            sessionData.displayedGames.forEach((game, index) => {
+            // ترتيب من الأحدث للأقدم
+            const sortedGames = [...sessionData.displayedGames].sort((a, b) => b.end_time - a.end_time);
+            sortedGames.forEach((game, index) => {
                 const isWhite = game.white.username.toLowerCase() === sessionData.username.toLowerCase();
                 const opponent = isWhite ? game.black : game.white;
                 const playerColor = isWhite ? 'white' : 'black';
@@ -2528,34 +2486,35 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-4 flex-wrap">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: ${rs.color};">
+                            <div class="icon-game w-5 h-5 flex items-center justify-center" style="background: ${rs.color};">
                                 <i data-lucide="${rs.icon}" class="w-6 h-6 text-white"></i>
                             </div>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <img src="${placeholderImg}" 
                                          alt="${opponent.username}" 
-                                         class="w-8 h-8 rounded-full opponent-avatar"
+                                         class="img-game w-10 h-10 opponent-avatar"
+                                         style="max-width:40px;"
                                          data-username="${opponent.username}"
                                          onerror="this.src='https://www.chess.com/bundles/web/images/user-image.svg'">
                                     <span class="font-semibold">${opponent.username}</span>
-                                    <span class="text-sm" style="color: var(--text-secondary);">(${opponent.rating})</span>
                                 </div>
                                 <div class="flex items-center gap-3 text-sm" style="color: var(--text-secondary);">
-                                    <span class="flex items-center gap-1">
+                                 <span class="text-sm" style="color: var(--text-secondary);">(${opponent.rating})</span>
+                                    <span>${date}</span>
+                                    <span class="flex items-center gap-1" style="color: var(--accent-gold);">
                                         <i data-lucide="${timeIcons[timeControl] || 'clock'}" class="w-4 h-4"></i>
                                         ${timeControl}
                                     </span>
-                                    <span>${date}</span>
                                 </div>
                             </div>
                         </div>
                         ${isAnalyzed 
                             ? `<button class="view-analysis-btn btn btn-view" data-game-key="${analyzedGames.get(gameId)}">
                                 <i data-lucide="eye" class="w-4 h-4"></i>
-                                عرض التحليل
+                                عرض
                               </button>`
-                            : `<button class="analyze-btn btn btn-primary" data-game-index="${index}">
+                            : `<button class="analyze-btn btn btn-primary" data-game-index="${sessionData.displayedGames.indexOf(game)}">
                                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                                 تحليل
                               </button>`
@@ -2728,50 +2687,33 @@
             const whiteHeaderOpening = document.querySelector('.white-header .opening-type');
             const blackHeaderOpening = document.querySelector('.black-header .opening-type');
             
-            // Set central opening badge
-            if (openingInfo) {
+            if (openingInfo && openingInfo.name) {
                 openingElement.classList.remove('hidden');
                 
-                // عرض المصدر مع أيقونات واضحة
-                let sourceIcon = '';
-                let sourceText = '';
+                // اسم الافتتاحية — رابط للصفحة على chess.com إذا توفر
+                const nameHtml = openingInfo.ecoUrl
+                    ? `<a href="${openingInfo.ecoUrl}" target="_blank" style="color:var(--accent-gold);text-decoration:none;">${openingInfo.name}</a>`
+                    : `<span style="color:var(--accent-gold)">${openingInfo.name}</span>`;
                 
-                if (openingInfo.source === 'lichess-cloud') {
-                    sourceIcon = '🌐';
-                    sourceText = 'Lichess Cloud API';
-                } else if (openingInfo.source === 'lichess-tsv') {
-                    sourceIcon = '📖';
-                    sourceText = 'Lichess Official Database';
-                } else if (openingInfo.source === 'github') {
-                    sourceIcon = '📚';
-                    sourceText = 'GitHub Database';
-                } else {
-                    sourceIcon = '💾';
-                    sourceText = 'Local Database';
-                }
+                const ecoHtml = openingInfo.eco
+                    ? `<span style="font-size:0.82em;opacity:0.75;margin-right:4px;">${openingInfo.eco}</span>`
+                    : '';
                 
-                // عرض عدد Book moves إذا كان متاحاً
-                const bookInfo = openingInfo.bookMoveCount ? ` (${openingInfo.bookMoveCount} book moves)` : '';
+                const sourceHtml = openingInfo.source === 'chess.com'
+                    ? `<span style="font-size:0.75em;color:#81c784;opacity:0.8;">chess.com ♟</span>`
+                    : '';
                 
-                openingElement.querySelector('.opening-name').innerHTML = `
-                    <span style="color: var(--accent-gold)">${openingInfo.name}</span> 
-                    ${openingInfo.eco ? `<span style="font-size:0.85em;opacity:0.8">(${openingInfo.eco})</span>` : ''}
-                    <span title="${sourceText}${bookInfo}" style="font-size:0.95em;cursor:help;opacity:0.9">${sourceIcon}</span>
-                `;
-                openingElement.querySelector('.opening-moves').textContent = openingInfo.moves;
+                openingElement.querySelector('.opening-name').innerHTML =
+                    `${ecoHtml}${nameHtml} ${sourceHtml}`;
+                openingElement.querySelector('.opening-moves').textContent =
+                    openingInfo.moves || '';
             } else {
                 openingElement.classList.add('hidden');
             }
             
-            // تحديث اسم الافتتاحية في الهيدر - فقط إذا كانت المعلومات متوفرة
-            if (openingInfo) {
-                if (whiteHeaderOpening) whiteHeaderOpening.textContent = openingInfo.name;
-                if (blackHeaderOpening) blackHeaderOpening.textContent = openingInfo.name;
-            } else {
-                // إزالة النص حتى يتم اكتشاف الافتتاحية
-                if (whiteHeaderOpening) whiteHeaderOpening.textContent = '';
-                if (blackHeaderOpening) blackHeaderOpening.textContent = '';
-            }
+            const displayName = openingInfo?.name || '';
+            if (whiteHeaderOpening) whiteHeaderOpening.textContent = displayName;
+            if (blackHeaderOpening) blackHeaderOpening.textContent = displayName;
         }
 
                // ==================== تصنيف الحركات ====================
@@ -2853,21 +2795,23 @@
                     appLog('🚀 وضع فوري - Simple Eval', 'engine');
                     await simpleEvaluation();
                 } else if (analysisDepth === 'super') {
-                    // سوبر: SF18 فقط، إذا فشل → Simple Eval
+                    // سوبر: SF18 فقط، إذا فشل → وضع فوري (instant)
                     appLog('🧠 وضع سوبر - Stockfish 18', 'engine');
                     const ok = await trySF18Analysis();
                     if (!ok) {
-                        showToast('⚠️ SF18 غير متاح، استخدام التحليل البسيط...');
-                        appLog('⚠️ SF18 فشل - التحويل إلى Simple Eval', 'warn');
+                        showToast('⚠️ SF18 غير متاح، تشغيل وضع فوري...');
+                        appLog('⚠️ SF18 فشل - التحويل إلى وضع فوري', 'warn');
+                        analysisDepth = 'instant';
                         await simpleEvaluation();
                     }
                 } else {
-                    // سريع/متوازن/عميق: SF10 مباشرة، إذا فشل → Simple Eval
+                    // سريع/متوازن/عميق: SF10 مباشرة، إذا فشل → وضع فوري (instant)
                     appLog('⚡ Stockfish 10 - ' + analysisDepth, 'engine');
                     const ok = await trySF10Analysis();
                     if (!ok) {
-                        showToast('⚠️ Stockfish غير متاح، استخدام التحليل البسيط...');
-                        appLog('⚠️ SF10 فشل - التحويل إلى Simple Eval', 'warn');
+                        showToast('⚠️ Stockfish غير متاح، تشغيل وضع فوري...');
+                        appLog('⚠️ SF10 فشل - التحويل إلى وضع فوري', 'warn');
+                        analysisDepth = 'instant';
                         await simpleEvaluation();
                     }
                 }
@@ -2883,6 +2827,7 @@
             } catch (error) {
                 appLog(`❌ خطأ في التحليل: ${error.message}`, 'error');
                 showToast('خطأ في التحليل');
+                analysisDepth = 'instant';
                 await simpleEvaluation();
                 displayAnalysisResults();
                 document.getElementById('analysis-options-modal').classList.remove('active');
@@ -4054,6 +3999,12 @@
             
             _syncEngineStatus('تحليل محفوظ');
             displayAnalysisResults();
+
+            // افتح نافذة النتائج
+            document.getElementById('analysis-options-modal')?.classList.remove('active');
+            document.getElementById('results-sheet').classList.add('active');
+            document.getElementById('results-overlay').classList.add('active');
+            lucide.createIcons();
         }
         
         // ==================== المحفوظات ====================
@@ -4196,114 +4147,36 @@
         
         // تحديث badge العداد
         function updateLogBadge() {
-            const badge = document.getElementById('log-badge');
-            if (!badge) return;
             const count = _consoleLogs.length;
-            if (count > 0) {
-                badge.style.display = 'inline-block';
-                badge.textContent = count > 99 ? '99+' : count;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-        
-        // ==================== مكتبة الافتتاحيات ====================
-        document.getElementById('openings-library-btn').addEventListener('click', async () => {
-            document.getElementById('openings-overlay').classList.add('active');
-            document.getElementById('openings-sheet').classList.add('active');
-            await loadOpeningsLibrary();
-        });
-        
-        document.getElementById('openings-overlay').addEventListener('click', () => {
-            document.getElementById('openings-overlay').classList.remove('active');
-            document.getElementById('openings-sheet').classList.remove('active');
-        });
-        
-        document.getElementById('close-openings-btn').addEventListener('click', () => {
-            document.getElementById('openings-overlay').classList.remove('active');
-            document.getElementById('openings-sheet').classList.remove('active');
-        });
-        
-        let allOpenings = [];
-        
-        async function loadOpeningsLibrary() {
-            const resultsDiv = document.getElementById('openings-results');
-            const countDiv = document.getElementById('openings-count');
-            appLog('📖 تحميل مكتبة الافتتاحيات...');
-
-            // قاعدة البيانات المحلية فقط
-            const localOpenings = Object.entries(openingsDatabase).map(([moves, data]) => ({
-                name: data.name,
-                eco: data.eco,
-                moves: moves,
-                source: 'local'
-            }));
-
-            if (localOpenings.length > 0) {
-                allOpenings = localOpenings;
-                countDiv.innerHTML = `<span style="color: var(--accent-gold)">${localOpenings.length} افتتاحية محلية 💾</span>`;
-                displayOpenings(localOpenings);
-                appLog(`✅ مكتبة الافتتاحيات: ${localOpenings.length} افتتاحية`, 'success');
-            } else {
-                countDiv.innerHTML = '<span style="color: var(--loss-red)">قاعدة البيانات فارغة ❌</span>';
-                resultsDiv.innerHTML = '<p class="text-center py-8" style="color: var(--loss-red)">لا توجد افتتاحيات في قاعدة البيانات المحلية</p>';
-                appLog('❌ قاعدة البيانات المحلية فارغة', 'error');
-            }
-        }
-        
-        function displayOpenings(openings) {
-            const resultsDiv = document.getElementById('openings-results');
-            resultsDiv.innerHTML = '';
-            
-            openings.forEach(opening => {
-                const card = document.createElement('div');
-                card.className = 'p-3 rounded-lg cursor-pointer transition-all';
-                card.style.background = 'var(--bg-tertiary)';
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <div class="font-semibold mb-1">${opening.name}</div>
-                            <div class="text-sm" style="color: var(--text-secondary);">${opening.eco} • ${opening.moves || ''}</div>
-                        </div>
-                        <div class="text-sm font-mono px-3 py-1 rounded" style="background: var(--accent-gold); color: #000;">
-                            ${opening.eco}
-                        </div>
-                    </div>
-                `;
-                
-                card.addEventListener('mouseenter', () => {
-                    card.style.background = 'var(--bg-secondary)';
-                    card.style.transform = 'translateX(-4px)';
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    card.style.background = 'var(--bg-tertiary)';
-                    card.style.transform = 'translateX(0)';
-                });
-                
-                resultsDiv.appendChild(card);
+            ['log-badge', 'log-badge-2'].forEach(id => {
+                const badge = document.getElementById(id);
+                if (!badge) return;
+                if (count > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = count > 99 ? '99+' : count;
+                } else {
+                    badge.style.display = 'none';
+                }
             });
         }
-        
-        // البحث في الافتتاحيات
-        document.getElementById('openings-search').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            
-            if (!query) {
-                displayOpenings(allOpenings.slice(0, 50));
-                return;
-            }
-            
-            const filtered = allOpenings.filter(opening => 
-                opening.name.toLowerCase().includes(query) ||
-                opening.eco.toLowerCase().includes(query) ||
-                (opening.moves && opening.moves.toLowerCase().includes(query))
-            );
-            
-            document.getElementById('openings-count').textContent = `${filtered.length.toLocaleString()} نتيجة`;
-            displayOpenings(filtered.slice(0, 100));
+
+        // زر سجل الأحداث الثاني (في قسم المباريات)
+        document.getElementById('opening-log-btn-2')?.addEventListener('click', () => {
+            document.getElementById('opening-log-overlay').classList.add('active');
+            document.getElementById('opening-log-sheet').classList.add('active');
+            renderConsoleLogs();
+        });
+
+        // زر فلتر البحث الثاني (في قسم المباريات)
+        document.getElementById('search-games-btn-2')?.addEventListener('click', () => {
+            document.getElementById('search-overlay').classList.add('active');
+            document.getElementById('search-sheet').classList.add('active');
         });
         
+        
+        // ==================== مكتبة الافتتاحيات ====================
+        // زر مكتبة الافتتاحيات يفتح Opening-Library.html مباشرة (onclick في الزر)
+
         // ==================== بحث في المباريات ====================
         let currentFilter = {
             opponent: '',
@@ -4413,6 +4286,9 @@
         // ==================== تهيئة ====================
         lucide.createIcons();
         
+        // تهيئة حالة نافذة خيارات التحليل (auto محدد افتراضياً مع sub fast)
+        document.getElementById('auto-sub-options').style.display = 'flex';
+        
         // ربط زر مسح Console
         document.getElementById('copy-console-btn')?.addEventListener('click', () => {
             const text = _consoleLogs.map(e => `[${e.time}] ${e.msg}`).join('\n');
@@ -4438,12 +4314,37 @@
         document.querySelectorAll('.depth-option').forEach(opt => {
             opt.addEventListener('click', () => {
                 if (isAnalyzing) return;
-                document.querySelectorAll('.depth-option').forEach(o => {
+                const depth = opt.dataset.depth;
+                
+                if (opt.classList.contains('depth-sub')) {
+                    // نقر على sub-option → فقط حدّث الـ sub selection وضع analysisDepth
+                    document.querySelectorAll('.depth-sub').forEach(s => s.classList.remove('selected','selected-instant'));
+                    opt.classList.add('selected');
+                    setAnalysisDepth(depth);
+                    return;
+                }
+                
+                // نقر على خيار رئيسي
+                document.querySelectorAll('.depth-option:not(.depth-sub)').forEach(o => {
                     o.classList.remove('selected','selected-instant');
                 });
-                const depth = opt.dataset.depth;
-                opt.classList.add(depth === 'instant' ? 'selected-instant' : 'selected');
-                setAnalysisDepth(depth);
+                
+                if (depth === 'auto') {
+                    opt.classList.add('selected');
+                    // أظهر sub-options وحدد السريع افتراضياً
+                    document.getElementById('auto-sub-options').style.display = 'flex';
+                    // اختر الـ sub المحدد حالياً أو السريع كافتراضي
+                    const currentSub = ['fast','normal','deep'].includes(analysisDepth) ? analysisDepth : 'fast';
+                    document.querySelectorAll('.depth-sub').forEach(s => {
+                        s.classList.toggle('selected', s.dataset.depth === currentSub);
+                    });
+                    setAnalysisDepth(currentSub);
+                } else {
+                    // أخفِ sub-options إذا اختار غير auto
+                    document.getElementById('auto-sub-options').style.display = 'none';
+                    opt.classList.add(depth === 'instant' ? 'selected-instant' : 'selected');
+                    setAnalysisDepth(depth);
+                }
             });
         });
 
